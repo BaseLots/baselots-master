@@ -148,8 +148,24 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* Account Menu (placeholder for future auth) */}
-              <div className="flex justify-end">
+              {/* Account Menu */}
+              <div className="flex justify-end items-center gap-4">
+                <Link href="/token">
+                  <Button 
+                    variant="ghost" 
+                    className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-950/30"
+                  >
+                    Token
+                  </Button>
+                </Link>
+                <Link href="/contracts/" target="_blank">
+                  <Button 
+                    variant="ghost" 
+                    className="text-orange-400 hover:text-orange-300 hover:bg-orange-950/30"
+                  >
+                    Contracts
+                  </Button>
+                </Link>
                 <Link href="/get-started">
                   <Button 
                     variant="outline" 
