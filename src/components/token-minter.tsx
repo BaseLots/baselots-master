@@ -122,13 +122,13 @@ export function TokenMinter() {
         <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
           <p className="text-gray-400 text-sm mb-1">Your Balance</p>
           <p className="text-2xl font-bold text-cyan-400">
-            {balance && typeof balance === 'bigint' ? formatEther(balance) : '0'} BLT
+            {balance && typeof balance === 'bigint' ? formatEther(balance) : '0'} BLOCKS
           </p>
         </div>
         <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
           <p className="text-gray-400 text-sm mb-1">Total Supply</p>
           <p className="text-2xl font-bold text-orange-400">
-            {totalSupply && typeof totalSupply === 'bigint' ? formatEther(totalSupply) : '0'} BLT
+            {totalSupply && typeof totalSupply === 'bigint' ? formatEther(totalSupply) : '0'} BLOCKS
           </p>
         </div>
       </div>
@@ -149,7 +149,7 @@ export function TokenMinter() {
       <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
         <h3 className="text-lg font-semibold text-white mb-4">Buy Tokens</h3>
         <p className="text-gray-400 text-sm mb-4">
-          1 ETH = 100 BLT tokens (MVP rate)
+          1 ETH = 100 BLOCKS tokens (MVP rate)
         </p>
         <div className="flex gap-4">
           <input
@@ -166,7 +166,7 @@ export function TokenMinter() {
             disabled={isPending}
             className="bg-gradient-to-r from-cyan-500 to-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {isPending ? 'Buying...' : 'Buy BLT'}
+            {isPending ? 'Buying...' : 'Buy BLOCKS'}
           </button>
         </div>
         {error && (
