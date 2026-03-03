@@ -1,5 +1,4 @@
-import { useAccount, useReadContract, useWriteContract } from 'wagmi';
-import { parseEther } from 'viem';
+import { useAccount, useReadContract } from 'wagmi';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -74,7 +73,7 @@ export function KYCRegistration() {
     args: address ? [address] : undefined,
   });
 
-  const { writeContract, isPending, error } = useWriteContract();
+  const { error } = useWriteContract();
 
   const handleSubmit = () => {
     // In production: Send to KYC provider API first
@@ -161,7 +160,7 @@ export function KYCRegistration() {
           </div>
 
           <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-            <h3 className="text-lg font-semibold text-white mb-4">What You'll Need</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">What You&apos;ll Need</h3>
             <ul className="space-y-3 text-gray-300">
               <li className="flex items-start gap-3">
                 <span className="text-orange-400">1.</span>
