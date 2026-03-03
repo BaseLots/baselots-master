@@ -104,33 +104,7 @@ export function KYCRegistration() {
           <p className="text-gray-300">Your identity has been verified and you can invest in BaseLots properties.</p>
         </div>
         
-        {identityData && (
-          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-            <h3 className="text-lg font-semibold text-white mb-4">Identity Details</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Status</span>
-                <span className="text-green-400">Verified</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Accredited Investor</span>
-                <span className={identityData[2] ? 'text-green-400' : 'text-gray-500'}>
-                  {identityData[2] ? 'Yes' : 'No'}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Country</span>
-                <span className="text-white">{identityData[3] === 840 ? 'United States' : identityData[3]}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Expiry</span>
-                <span className="text-white">
-                  {new Date(Number(identityData[4]) * 1000).toLocaleDateString()}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Identity details would display here after fetching from contract */}
       </div>
     );
   }
