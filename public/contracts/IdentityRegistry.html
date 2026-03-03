@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IdentityRegistry - BaseLots Contracts</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Monaco', 'Menlo', monospace;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        .header {
+            background: #111;
+            border-bottom: 1px solid #333;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 1.2rem; color: #00D4FF; }
+        .header a { color: #888; text-decoration: none; }
+        .header a:hover { color: #fff; }
+        .download { 
+            background: #FF5722;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        pre {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        code { color: #e0e0e0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>IdentityRegistry</h1>
+        <div>
+            <a href="IdentityRegistry.sol" download class="download">Download .sol</a>
+            <a href="./">← Back to Contracts</a>
+        </div>
+    </div>
+    <div class="container">
+        <pre><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import &quot;@openzeppelin/contracts/access/AccessControl.sol&quot;;
+
+/**
+ * @title IdentityRegistry
+ * @dev On-chain KYC/AML registry for BaseLots
+ * Links wallet addresses to verified off-chain identities
+ */
+contract IdentityRegistry is AccessControl {
+    
+    bytes32 public constant KYC_AGENT = keccak256(&quot;KYC_AGENT&quot;);
+    bytes32 public constant REGISTRY_ADMIN = keccak256(&quot;REGISTRY_ADMIN&quot;);
+    
+    struct Identity {
+        bytes32 identityHash;      // Hash of verified identity docs
+        bool isVerified;           // KYC/AML passed
+        bool isAccredited;         // SEC accredited investor
+        uint16 countryCode;        // ISO 3166-1 numeric
+        uint64 expiryDate;         // KYC expiry timestamp
+        address[] wallets;         // Linked wallets
+    }
+    
+    // Mapping: wallet =&gt; identity data
+    mapping(address =&gt; Identity) public identities;
+    
+    // Mapping: identityHash =&gt; primary wallet (for deduplication)
+    mapping(bytes32 =&gt; address) public identityToWallet;
+    
+    // Country restrictions
+    mapping(uint16 =&gt; bool) public blockedCountries;
+    
+    // Events
+    event IdentityRegistered(
+        address indexed wallet,
+        bytes32 indexed identityHash,
+        bool isAccredited,
+        uint16 countryCode
+    );
+    event IdentityUpdated(address indexed wallet, bool isVerified, bool isAccredited);
+    event WalletLinked(address indexed primary, address indexed linkedWallet);
+    event CountryBlocked(uint16 countryCode, bool blocked);
+    
+    constructor() {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(KYC_AGENT, msg.sender);
+        _grantRole(REGISTRY_ADMIN, msg.sender);
+    }
+    
+    // ============ Registration ============
+    
+    function registerIdentity(
+        address wallet,
+        bytes32 identityHash,
+        bool isAccredited,
+        uint16 countryCode,
+        uint64 expiryDate
+    ) external onlyRole(KYC_AGENT) {
+        require(wallet != address(0), &quot;Invalid wallet&quot;);
+        require(identityHash != bytes32(0), &quot;Invalid hash&quot;);
+        require(!blockedCountries[countryCode], &quot;Country blocked&quot;);
+        require(expiryDate &gt; block.timestamp, &quot;Expiry must be future&quot;);
+        
+        // Check if identity already exists
+        address existingWallet = identityToWallet[identityHash];
+        if (existingWallet != address(0)) {
+            // Link this wallet to existing identity
+            _linkWallet(existingWallet, wallet);
+            return;
+        }
+        
+        Identity storage identity = identities[wallet];
+        identity.identityHash = identityHash;
+        identity.isVerified = true;
+        identity.isAccredited = isAccredited;
+        identity.countryCode = countryCode;
+        identity.expiryDate = expiryDate;
+        identity.wallets.push(wallet);
+        
+        identityToWallet[identityHash] = wallet;
+        
+        emit IdentityRegistered(wallet, identityHash, isAccredited, countryCode);
+    }
+    
+    function updateVerification(
+        address wallet,
+        bool isVerified
+    ) external onlyRole(KYC_AGENT) {
+        require(identities[wallet].identityHash != bytes32(0), &quot;Identity not found&quot;);
+        identities[wallet].isVerified = isVerified;
+        
+        emit IdentityUpdated(wallet, isVerified, identities[wallet].isAccredited);
+    }
+    
+    function updateAccreditation(
+        address wallet,
+        bool isAccredited
+    ) external onlyRole(KYC_AGENT) {
+        require(identities[wallet].identityHash != bytes32(0), &quot;Identity not found&quot;);
+        identities[wallet].isAccredited = isAccredited;
+        
+        emit IdentityUpdated(wallet, identities[wallet].isVerified, isAccredited);
+    }
+    
+    function refreshExpiry(
+        address wallet,
+        uint64 newExpiryDate
+    ) external onlyRole(KYC_AGENT) {
+        require(identities[wallet].identityHash != bytes32(0), &quot;Identity not found&quot;);
+        require(newExpiryDate &gt; block.timestamp, &quot;Expiry must be future&quot;);
+        
+        identities[wallet].expiryDate = newExpiryDate;
+    }
+    
+    // ============ Wallet Linking ============
+    
+    function _linkWallet(address primary, address linked) internal {
+        Identity storage identity = identities[primary];
+        
+        // Check not already linked
+        for (uint i = 0; i &lt; identity.wallets.length; i++) {
+            require(identity.wallets[i] != linked, &quot;Already linked&quot;);
+        }
+        
+        identity.wallets.push(linked);
+        
+        // Copy identity to linked wallet reference
+        identities[linked] = Identity({
+            identityHash: identity.identityHash,
+            isVerified: identity.isVerified,
+            isAccredited: identity.isAccredited,
+            countryCode: identity.countryCode,
+            expiryDate: identity.expiryDate,
+            wallets: identity.wallets
+        });
+        
+        emit WalletLinked(primary, linked);
+    }
+    
+    // ============ View Functions ============
+    
+    function isVerified(address wallet) external view returns (bool) {
+        Identity storage identity = identities[wallet];
+        return identity.isVerified &amp;&amp; identity.expiryDate &gt; block.timestamp;
+    }
+    
+    function isAccredited(address wallet) external view returns (bool) {
+        return identities[wallet].isAccredited;
+    }
+    
+    function getIdentity(address wallet) external view returns (
+        bytes32 identityHash,
+        bool verified,
+        bool accredited,
+        uint16 countryCode,
+        uint64 expiry
+    ) {
+        Identity storage identity = identities[wallet];
+        return (
+            identity.identityHash,
+            identity.isVerified &amp;&amp; identity.expiryDate &gt; block.timestamp,
+            identity.isAccredited,
+            identity.countryCode,
+            identity.expiryDate
+        );
+    }
+    
+    function getLinkedWallets(address wallet) external view returns (address[] memory) {
+        return identities[wallet].wallets;
+    }
+    
+    function isCountryBlocked(uint16 countryCode) external view returns (bool) {
+        return blockedCountries[countryCode];
+    }
+    
+    // ============ Admin ============
+    
+    function setCountryBlocked(uint16 countryCode, bool blocked) external onlyRole(REGISTRY_ADMIN) {
+        blockedCountries[countryCode] = blocked;
+        emit CountryBlocked(countryCode, blocked);
+    }
+    
+    function batchBlockCountries(uint16[] calldata countryCodes, bool blocked) external onlyRole(REGISTRY_ADMIN) {
+        for (uint i = 0; i &lt; countryCodes.length; i++) {
+            blockedCountries[countryCodes[i]] = blocked;
+            emit CountryBlocked(countryCodes[i], blocked);
+        }
+    }
+}
+</code></pre>
+    </div>
+</body>
+</html>

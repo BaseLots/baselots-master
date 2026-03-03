@@ -1,0 +1,20 @@
+<svg width="300" height="80" viewBox="0 0 300 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cube Icon -->
+  <g transform="translate(10, 15)">
+    <!-- Back face -->
+    <path d="M25 5 L40 13 L40 28 L25 36 L10 28 L10 13 Z" fill="#142138"/>
+    <!-- Left face (cyan) -->
+    <path d="M10 13 L25 5 L25 20 L10 28 Z" fill="#00D4FF"/>
+    <!-- Right face (orange) -->
+    <path d="M25 5 L40 13 L40 28 L25 20 Z" fill="#FF5722"/>
+    <!-- Tree on left face -->
+    <path d="M17.5 10 L15 15 L20 15 L17.5 10 M17.5 14 L17.5 20" stroke="white" stroke-width="1" fill="none"/>
+  </g>
+  
+  <!-- "BaseLots" Text -->
+  <text x="65" y="40" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="white">Base</text>
+  <text x="135" y="40" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#FF5722">Lots</text>
+  
+  <!-- "FRACTIONAL REAL ESTATE" Tagline -->
+  <text x="65" y="58" font-family="Arial, sans-serif" font-size="10" font-weight="400" fill="white" letter-spacing="2">FRACTIONAL REAL ESTATE</text>
+</svg>

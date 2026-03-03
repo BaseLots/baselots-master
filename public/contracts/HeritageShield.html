@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeritageShield - BaseLots Contracts</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Monaco', 'Menlo', monospace;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        .header {
+            background: #111;
+            border-bottom: 1px solid #333;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 1.2rem; color: #00D4FF; }
+        .header a { color: #888; text-decoration: none; }
+        .header a:hover { color: #fff; }
+        .download { 
+            background: #FF5722;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-right: 1rem;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        pre {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        code { color: #e0e0e0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>HeritageShield</h1>
+        <div>
+            <a href="HeritageShield.sol" download class="download">Download .sol</a>
+            <a href="./">← Back to Contracts</a>
+        </div>
+    </div>
+    <div class="container">
+        <pre><code>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import &quot;@openzeppelin/contracts/access/AccessControl.sol&quot;;
+
+interface IBaseLotsToken {
+    function transfer(address to, uint256 amount) external returns (bool);
+    function balanceOf(address account) external view returns (uint256);
+    function executeInheritance(address deceased) external;
+}
+
+/**
+ * @title HeritageShield
+ * @dev Automated inheritance protocol for BaseLots
+ * Integrates with Chainlink oracle for death verification
+ * 90-day challenge period before execution
+ */
+contract HeritageShield is AccessControl {
+    
+    bytes32 public constant ORACLE_ROLE = keccak256(&quot;ORACLE_ROLE&quot;);
+    bytes32 public constant CHALLENGE_ADMIN = keccak256(&quot;CHALLENGE_ADMIN&quot;);
+    
+    struct BeneficiaryDesignation {
+        address beneficiary;
+        uint256 percentage;      // 0-100, total must equal 100
+        uint256 timestamp;
+        bool active;
+    }
+    
+    struct InheritanceStatus {
+        bool isFrozen;           // HSP freeze active
+        bytes32 deathProof;      // Oracle attestation hash
+        uint256 freezeTimestamp; // When freeze started
+        uint256 challengeDeadline; // 90 days from freeze
+        bool executed;           // Transfer completed
+        address challenger;      // Address that challenged (if any)
+        uint256 challengeBond;   // Bond amount for challenge
+    }
+    
+    // User =&gt; list of beneficiaries
+    mapping(address =&gt; BeneficiaryDesignation[]) public designations;
+    
+    // User =&gt; inheritance status
+    mapping(address =&gt; InheritanceStatus) public inheritanceStatus;
+    
+    // Death proofs submitted (hash =&gt; verified)
+    mapping(bytes32 =&gt; bool) public verifiedDeathProofs;
+    
+    // Challenge bond amount (0.5 ETH)
+    uint256 public challengeBond = 0.5 ether;
+    
+    // Challenge period duration (90 days)
+    uint256 public challengePeriod = 90 days;
+    
+    // Token contract reference
+    IBaseLotsToken public token;
+    
+    // Events
+    event BeneficiaryDesignated(
+        address indexed user,
+        address indexed beneficiary,
+        uint256 percentage
+    );
+    event DesignationRemoved(address indexed user, address indexed beneficiary);
+    event DeathReported(address indexed deceased, bytes32 indexed proof);
+    event FreezeActivated(address indexed deceased, uint256 challengeDeadline);
+    event ChallengeSubmitted(address indexed deceased, address indexed challenger);
+    event ChallengeResolved(address indexed deceased, bool successful);
+    event InheritanceExecuted(address indexed deceased, uint256 totalTransferred);
+    event ChallengeBondUpdated(uint256 newAmount);
+    event ChallengePeriodUpdated(uint256 newPeriod);
+    
+    constructor(address _token) {
+        require(_token != address(0), &quot;Invalid token&quot;);
+        token = IBaseLotsToken(_token);
+        
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(ORACLE_ROLE, msg.sender);
+        _grantRole(CHALLENGE_ADMIN, msg.sender);
+    }
+    
+    // ============ Beneficiary Management ============
+    
+    function designateBeneficiary(address beneficiary, uint256 percentage) external {
+        require(beneficiary != address(0), &quot;Invalid beneficiary&quot;);
+        require(beneficiary != msg.sender, &quot;Cannot designate self&quot;);
+        require(percentage &gt; 0 &amp;&amp; percentage &lt;= 100, &quot;Invalid percentage&quot;);
+        
+        BeneficiaryDesignation[] storage userDesignations = designations[msg.sender];
+        
+        // Check if updating existing
+        for (uint i = 0; i &lt; userDesignations.length; i++) {
+            if (userDesignations[i].beneficiary == beneficiary) {
+                userDesignations[i].percentage = percentage;
+                userDesignations[i].timestamp = block.timestamp;
+                userDesignations[i].active = true;
+                emit BeneficiaryDesignated(msg.sender, beneficiary, percentage);
+                return;
+            }
+        }
+        
+        // Add new
+        userDesignations.push(BeneficiaryDesignation({
+            beneficiary: beneficiary,
+            percentage: percentage,
+            timestamp: block.timestamp,
+            active: true
+        }));
+        
+        emit BeneficiaryDesignated(msg.sender, beneficiary, percentage);
+    }
+    
+    function removeBeneficiary(address beneficiary) external {
+        BeneficiaryDesignation[] storage userDesignations = designations[msg.sender];
+        
+        for (uint i = 0; i &lt; userDesignations.length; i++) {
+            if (userDesignations[i].beneficiary == beneficiary &amp;&amp; userDesignations[i].active) {
+                userDesignations[i].active = false;
+                emit DesignationRemoved(msg.sender, beneficiary);
+                return;
+            }
+        }
+        
+        revert(&quot;Beneficiary not found&quot;);
+    }
+    
+    function clearAllDesignations() external {
+        delete designations[msg.sender];
+    }
+    
+    // ============ Death Reporting &amp; Freeze ============
+    
+    function submitDeathProof(address deceased, bytes32 proofHash) external onlyRole(ORACLE_ROLE) {
+        require(deceased != address(0), &quot;Invalid address&quot;);
+        require(proofHash != bytes32(0), &quot;Invalid proof&quot;);
+        require(!inheritanceStatus[deceased].isFrozen, &quot;Already frozen&quot;);
+        require(!inheritanceStatus[deceased].executed, &quot;Already executed&quot;);
+        require(getTotalPercentage(deceased) == 100, &quot;Beneficiaries must total 100%&quot;);
+        require(token.balanceOf(deceased) &gt; 0, &quot;No tokens to inherit&quot;);
+        
+        verifiedDeathProofs[proofHash] = true;
+        
+        uint256 deadline = block.timestamp + challengePeriod;
+        
+        inheritanceStatus[deceased] = InheritanceStatus({
+            isFrozen: true,
+            deathProof: proofHash,
+            freezeTimestamp: block.timestamp,
+            challengeDeadline: deadline,
+            executed: false,
+            challenger: address(0),
+            challengeBond: 0
+        });
+        
+        emit DeathReported(deceased, proofHash);
+        emit FreezeActivated(deceased, deadline);
+    }
+    
+    // ============ Challenge System ============
+    
+    function challengeDeathReport(address deceased) external payable {
+        InheritanceStatus storage status = inheritanceStatus[deceased];
+        
+        require(status.isFrozen, &quot;Not frozen&quot;);
+        require(!status.executed, &quot;Already executed&quot;);
+        require(block.timestamp &lt; status.challengeDeadline, &quot;Challenge period ended&quot;);
+        require(status.challenger == address(0), &quot;Already challenged&quot;);
+        require(msg.value &gt;= challengeBond, &quot;Insufficient bond&quot;);
+        
+        status.challenger = msg.sender;
+        status.challengeBond = msg.value;
+        
+        emit ChallengeSubmitted(deceased, msg.sender);
+    }
+    
+    function resolveChallenge(address deceased, bool successful) external onlyRole(CHALLENGE_ADMIN) {
+        InheritanceStatus storage status = inheritanceStatus[deceased];
+        
+        require(status.challenger != address(0), &quot;No active challenge&quot;);
+        
+        if (successful) {
+            // Challenge successful — death report was false
+            status.isFrozen = false;
+            status.executed = false;
+            
+            // Return bond to challenger
+            payable(status.challenger).transfer(status.challengeBond);
+        } else {
+            // Challenge failed — death confirmed
+            // Bond goes to beneficiaries as compensation for delay
+            _distributeChallengeBond(deceased, status.challengeBond);
+        }
+        
+        status.challenger = address(0);
+        status.challengeBond = 0;
+        
+        emit ChallengeResolved(deceased, successful);
+    }
+    
+    function _distributeChallengeBond(address deceased, uint256 bond) internal {
+        BeneficiaryDesignation[] storage userDesignations = designations[deceased];
+        
+        for (uint i = 0; i &lt; userDesignations.length; i++) {
+            if (userDesignations[i].active) {
+                uint256 share = (bond * userDesignations[i].percentage) / 100;
+                if (share &gt; 0) {
+                    payable(userDesignations[i].beneficiary).transfer(share);
+                }
+            }
+        }
+    }
+    
+    // ============ Inheritance Execution ============
+    
+    function executeInheritance(address deceased) external {
+        InheritanceStatus storage status = inheritanceStatus[deceased];
+        
+        require(status.isFrozen, &quot;Not frozen&quot;);
+        require(!status.executed, &quot;Already executed&quot;);
+        require(block.timestamp &gt;= status.challengeDeadline, &quot;Challenge period active&quot;);
+        require(status.challenger == address(0), &quot;Active challenge&quot;);
+        
+        uint256 deceasedBalance = token.balanceOf(deceased);
+        require(deceasedBalance &gt; 0, &quot;No tokens to transfer&quot;);
+        
+        BeneficiaryDesignation[] storage userDesignations = designations[deceased];
+        uint256 totalTransferred;
+        
+        for (uint i = 0; i &lt; userDesignations.length; i++) {
+            if (userDesignations[i].active) {
+                uint256 amount = (deceasedBalance * userDesignations[i].percentage) / 100;
+                if (amount &gt; 0) {
+                    // Note: This would need the token contract to allow HSP transfers
+                    // Implementation depends on token&#x27;s freeze/unfreeze mechanism
+                    totalTransferred += amount;
+                }
+            }
+        }
+        
+        status.executed = true;
+        status.isFrozen = false;
+        
+        emit InheritanceExecuted(deceased, totalTransferred);
+    }
+    
+    // ============ View Functions ============
+    
+    function getBeneficiaries(address user) external view returns (
+        address[] memory beneficiaries,
+        uint256[] memory percentages
+    ) {
+        BeneficiaryDesignation[] storage userDesignations = designations[user];
+        
+        uint256 count = 0;
+        for (uint i = 0; i &lt; userDesignations.length; i++) {
+            if (userDesignations[i].active) count++;
+        }
+        
+        beneficiaries = new address[](count);
+        percentages = new uint256[](count);
+        
+        uint256 idx = 0;
+        for (uint i = 0; i &lt; userDesignations.length; i++) {
+            if (userDesignations[i].active) {
+                beneficiaries[idx] = userDesignations[i].beneficiary;
+                percentages[idx] = userDesignations[i].percentage;
+                idx++;
+            }
+        }
+        
+        return (beneficiaries, percentages);
+    }
+    
+    function getTotalPercentage(address user) public view returns (uint256 total) {
+        BeneficiaryDesignation[] storage userDesignations = designations[user];
+        
+        for (uint i = 0; i &lt; userDesignations.length; i++) {
+            if (userDesignations[i].active) {
+                total += userDesignations[i].percentage;
+            }
+        }
+    }
+    
+    function isFrozenByHSP(address user) external view returns (bool) {
+        return inheritanceStatus[user].isFrozen;
+    }
+    
+    function getInheritanceStatus(address user) external view returns (
+        bool isFrozen,
+        bytes32 deathProof,
+        uint256 freezeTimestamp,
+        uint256 challengeDeadline,
+        bool executed,
+        address challenger,
+        uint256 remainingChallengeTime
+    ) {
+        InheritanceStatus storage status = inheritanceStatus[user];
+        
+        uint256 remaining = 0;
+        if (status.isFrozen &amp;&amp; block.timestamp &lt; status.challengeDeadline) {
+            remaining = status.challengeDeadline - block.timestamp;
+        }
+        
+        return (
+            status.isFrozen,
+            status.deathProof,
+            status.freezeTimestamp,
+            status.challengeDeadline,
+            status.executed,
+            status.challenger,
+            remaining
+        );
+    }
+    
+    function canExecuteInheritance(address deceased) external view returns (bool) {
+        InheritanceStatus storage status = inheritanceStatus[deceased];
+        
+        return (
+            status.isFrozen &amp;&amp;
+            !status.executed &amp;&amp;
+            block.timestamp &gt;= status.challengeDeadline &amp;&amp;
+            status.challenger == address(0) &amp;&amp;
+            token.balanceOf(deceased) &gt; 0
+        );
+    }
+    
+    // ============ Admin Functions ============
+    
+    function setChallengeBond(uint256 newBond) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        challengeBond = newBond;
+        emit ChallengeBondUpdated(newBond);
+    }
+    
+    function setChallengePeriod(uint256 newPeriod) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        challengePeriod = newPeriod;
+        emit ChallengePeriodUpdated(newPeriod);
+    }
+    
+    function setToken(address _token) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(_token != address(0), &quot;Invalid token&quot;);
+        token = IBaseLotsToken(_token);
+    }
+    
+    function emergencyUnfreeze(address deceased) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        inheritanceStatus[deceased].isFrozen = false;
+    }
+    
+    receive() external payable {}
+}
+</code></pre>
+    </div>
+</body>
+</html>

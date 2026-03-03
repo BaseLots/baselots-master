@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Viewer - BaseLots</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        .header {
+            background: #111;
+            border-bottom: 1px solid #333;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header h1 {
+            font-size: 1.2rem;
+            color: #00D4FF;
+        }
+        .header a {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .header a:hover { color: #fff; }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .file-info {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file-name {
+            font-weight: bold;
+            color: #00D4FF;
+        }
+        .download-btn {
+            background: #FF5722;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .download-btn:hover { background: #FF5722cc; }
+        pre {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        code {
+            color: #e0e0e0;
+        }
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #888;
+        }
+        .error {
+            background: #3d1a1a;
+            border: 1px solid #ff5555;
+            color: #ff8888;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 id="title">Contract Viewer</h1>
+        <a href="./">← Back to Contracts</a>
+    </div>
+    
+    <div class="container">
+        <div class="file-info">
+            <span class="file-name" id="filename">Loading...</span>
+            <a href="#" id="download" class="download-btn" download>Download File</a>
+        </div>
+        
+        <div id="content" class="loading">Loading contract...</div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const file = params.get('file');
+        
+        if (!file) {
+            document.getElementById('content').innerHTML = '<div class="error">No file specified. Go back and select a contract.</div>';
+        } else {
+            document.getElementById('filename').textContent = file;
+            document.getElementById('title').textContent = file;
+            document.getElementById('download').href = file;
+            document.getElementById('download').download = file;
+            
+            fetch(file)
+                .then(response => {
+                    if (!response.ok) throw new Error('File not found');
+                    return response.text();
+                })
+                .then(code => {
+                    const pre = document.createElement('pre');
+                    const codeElement = document.createElement('code');
+                    codeElement.textContent = code;
+                    pre.appendChild(codeElement);
+                    document.getElementById('content').innerHTML = '';
+                    document.getElementById('content').appendChild(pre);
+                })
+                .catch(error => {
+                    document.getElementById('content').innerHTML = 
+                        `<div class="error">Error loading file: ${error.message}</div>`;
+                });
+        }
+    </script>
+</body>
+</html>

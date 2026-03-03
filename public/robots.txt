@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /stylus-demo
+
+# Allow all other pages
+Allow: /
+
+Sitemap: https://baselots.com/sitemap.xml

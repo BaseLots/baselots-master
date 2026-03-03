@@ -1,0 +1,20 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+        - echo "USESEND_API_KEY=$USESEND_API_KEY" >> .env
+        - echo "USESEND_FROM_EMAIL=$USESEND_FROM_EMAIL" >> .env
+        - echo "USESEND_CONTACT_BOOK_ID=$USESEND_CONTACT_BOOK_ID" >> .env
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*

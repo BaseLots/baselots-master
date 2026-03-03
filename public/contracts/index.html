@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BaseLots Smart Contracts</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #00D4FF, #FF5722);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle { color: #888; margin-bottom: 2rem; }
+        .contract {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.2s;
+        }
+        .contract:hover { border-color: #00D4FF; }
+        .contract h3 {
+            color: #00D4FF;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .contract p { color: #aaa; font-size: 0.95rem; }
+        .contract a {
+            display: inline-block;
+            margin-top: 1rem;
+            color: #FF5722;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .contract a:hover { text-decoration: underline; }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: #00D4FF20;
+            color: #00D4FF;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+        .links { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #333; }
+        .links a {
+            color: #888;
+            text-decoration: none;
+            margin-right: 1.5rem;
+        }
+        .links a:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <span class="badge">ERC-3643 / Arbitrum</span>
+        <h1>BaseLots Smart Contracts</h1>
+        <p class="subtitle">Fractional real estate security token infrastructure</p>
+
+        <div class="contract">
+            <h3>📄 BaseLotsToken.sol</h3>
+            <p>Main security token contract implementing ERC-3643 standard. Handles minting, transfers with compliance checks, batch operations, and HSP integration hooks.</p>
+            <a href="BaseLotsToken.html">View Source →</a>
+            <a href="BaseLotsToken.sol" download style="margin-left: 1rem;">Download →</a>
+        </div>
+
+        <div class="contract">
+            <h3>🆔 IdentityRegistry.sol</h3>
+            <p>On-chain KYC/AML registry. Links wallet addresses to verified identities, tracks accreditation status, and supports multi-wallet linking per identity.</p>
+            <a href="IdentityRegistry.html">View Source →</a>
+            <a href="IdentityRegistry.sol" download style="margin-left: 1rem;">Download →</a>
+        </div>
+
+        <div class="contract">
+            <h3>✓ Compliance.sol</h3>
+            <p>Modular compliance engine enforcing transfer rules: max balance limits, holding periods, Reg CF investor caps (500), and minimum investments.</p>
+            <a href="Compliance.html">View Source →</a>
+            <a href="Compliance.sol" download style="margin-left: 1rem;">Download →</a>
+        </div>
+
+        <div class="contract">
+            <h3>🛡️ HeritageShield.sol</h3>
+            <p>Automated inheritance protocol (HSP). Beneficiary designation, 90-day challenge period, oracle integration for death verification, and trustless execution.</p>
+            <a href="HeritageShield.html">View Source →</a>
+            <a href="HeritageShield.sol" download style="margin-left: 1rem;">Download →</a>
+        </div>
+
+        <div class="contract">
+            <h3>📋 README.md</h3>
+            <p>Full documentation including architecture overview, deployment instructions, and integration guide.</p>
+            <a href="README.md">View Documentation →</a>
+        </div>
+
+        <div class="links">
+            <a href="/">← Back to BaseLots</a>
+            <a href="deploy.js">Deploy Script</a>
+            <a href="hardhat.config.js">Hardhat Config</a>
+            <a href="package.json">Package.json</a>
+        </div>
+    </div>
+</body>
+</html>
