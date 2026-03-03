@@ -3,6 +3,13 @@ import { injected } from 'wagmi/connectors';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface KYCData {
   status: 'unverified' | 'pending' | 'verified' | 'rejected';
@@ -448,8 +455,57 @@ export function KYCRegistration() {
                 onChange={(e) => setFormData({...formData, isAccredited: e.target.checked})}
                 className="w-5 h-5 rounded border-gray-600 bg-gray-800"
               />
-              <label htmlFor="accredited" className="text-gray-300 text-sm">
-                I qualify as an <span className="text-cyan-400 underline cursor-pointer">Accredited Investor</span>
+              <label htmlFor="accredited" className="text-gray-300 text-sm flex items-center gap-1">
+                I qualify as an
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <button type="button" className="text-cyan-400 underline hover:text-cyan-300 cursor-pointer bg-transparent border-none p-0">
+                      Accredited Investor
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-lg">
+                    <DialogHeader>
+                      <DialogTitle className="text-xl font-bold text-cyan-400">What is an Accredited Investor?</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 text-gray-300">
+                      <p>
+                        An <strong className="text-white">Accredited Investor</strong> is someone who meets specific financial criteria set by the SEC, allowing them to invest in certain private securities and alternative investments.
+                      </p>
+                      
+                      <div>
+                        <h4 className="font-semibold text-white mb-2">You qualify if you meet ANY of these:</h4>
+                        <ul className="space-y-2 text-sm">
+                          <li className="flex items-start gap-2">
+                            <span className="text-cyan-400 mt-0.5">•</span>
+                            <span>Annual income of <strong className="text-white">$200,000+</strong> (individual) or <strong className="text-white">$300,000+</strong> (joint with spouse) for the past 2 years</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-cyan-400 mt-0.5">•</span>
+                            <span>Net worth over <strong className="text-white">$1,000,000</strong> (excluding primary residence)</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-cyan-400 mt-0.5">•</span>
+                            <span>Hold a Series 7, 65, or 82 license in good standing</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-cyan-400 mt-0.5">•</span>
+                            <span>Entity with assets over <strong className="text-white">$5,000,000</strong></span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-3">
+                        <p className="text-amber-200 text-sm">
+                          <strong>Note:</strong> BaseLots requires accredited investor status for certain higher-tier investments and removes investment limits for Reg CF offerings.
+                        </p>
+                      </div>
+
+                      <p className="text-xs text-gray-500">
+                        Source: SEC Rule 501 of Regulation D
+                      </p>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </label>
             </div>
           </div>
