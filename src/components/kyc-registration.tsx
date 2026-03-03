@@ -25,6 +25,66 @@ export function KYCRegistration() {
     country: 'US',
     isAccredited: false,
   });
+  const [ssnError, setSsnError] = useState('');
+
+  // Format SSN as user types (XXX-XX-XXXX)
+  const formatSSN = (value: string) => {
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '');
+    
+    // Limit to 9 digits
+    const limited = digits.slice(0, 9);
+    
+    // Format with dashes
+    if (limited.length <= 3) {
+      return limited;
+    } else if (limited.length <= 5) {
+      return `${limited.slice(0, 3)}-${limited.slice(3)}`;
+    } else {
+      return `${limited.slice(0, 3)}-${limited.slice(3, 5)}-${limited.slice(5)}`;
+    }
+  };
+
+  // Validate SSN (must be 9 digits)
+  const validateSSN = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length === 0) {
+      setSsnError('');
+      return false;
+    }
+    if (digits.length < 9) {
+      setSsnError(`Enter ${9 - digits.length} more digit${9 - digits.length === 1 ? '' : 's'}`);
+      return false;
+    }
+    if (digits.length === 9) {
+      // Basic SSN validation - first 3 digits can't be 000, 666, or 900-999
+      const firstThree = digits.slice(0, 3);
+      if (firstThree === '000' || firstThree === '666' || (parseInt(firstThree) >= 900)) {
+        setSsnError('Invalid SSN format');
+        return false;
+      }
+      // Middle 2 digits can't be 00
+      if (digits.slice(3, 5) === '00') {
+        setSsnError('Invalid SSN format');
+        return false;
+      }
+      // Last 4 digits can't be 0000
+      if (digits.slice(5) === '0000') {
+        setSsnError('Invalid SSN format');
+        return false;
+      }
+      setSsnError('');
+      return true;
+    }
+    setSsnError('');
+    return true;
+  };
+
+  const handleSSNChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatSSN(e.target.value);
+    setFormData({...formData, ssn: formatted});
+    validateSSN(formatted);
+  };
 
   // Load KYC data from localStorage on mount
   useEffect(() => {
@@ -300,11 +360,23 @@ export function KYCRegistration() {
               <label className="block text-gray-400 text-sm mb-2">SSN / Tax ID</label>
               <Input
                 value={formData.ssn}
-                onChange={(e) => setFormData({...formData, ssn: e.target.value})}
+                onChange={handleSSNChange}
                 placeholder="XXX-XX-XXXX"
-                className="bg-gray-800 border-gray-700 text-white h-12"
+                maxLength={11}
+                inputMode="numeric"
+                className={`bg-gray-800 text-white h-12 ${
+                  ssnError ? 'border-red-500 focus:border-red-500' : 
+                  formData.ssn.length === 11 ? 'border-green-500 focus:border-green-500' : 
+                  'border-gray-700'
+                }`}
               />
-              <p className="text-gray-500 text-xs mt-1">Demo only — not stored or transmitted</p>
+              {ssnError ? (
+                <p className="text-red-400 text-xs mt-1">{ssnError}</p>
+              ) : formData.ssn.length === 11 ? (
+                <p className="text-green-400 text-xs mt-1">✓ Valid SSN format</p>
+              ) : (
+                <p className="text-gray-500 text-xs mt-1">9 digits required (XXX-XX-XXXX)</p>
+              )}
             </div>
 
             <div>
@@ -338,7 +410,7 @@ export function KYCRegistration() {
           <div className="pt-4 space-y-3">
             <Button 
               onClick={handleSubmit}
-              disabled={!formData.fullName || !formData.ssn}
+              disabled={!formData.fullName || formData.ssn.length < 11 || ssnError !== ''}
               className="w-full bg-gradient-to-r from-cyan-500 to-orange-500 text-white py-6 text-lg font-semibold hover:opacity-90 disabled:opacity-50"
             >
               Submit for Verification
