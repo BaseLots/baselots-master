@@ -20,8 +20,8 @@ const TOKEN_ABI = [
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "amount", "type": "uint256" }],
-    "name": "buyTokens",
+    "inputs": [],
+    "name": "buy_tokens",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "payable",
     "type": "function"
@@ -76,7 +76,7 @@ export function TokenMinter() {
     writeContract({
       address: TOKEN_ADDRESS,
       abi: TOKEN_ABI,
-      functionName: 'buyTokens',
+      functionName: 'buy_tokens',
       value: parseEther(buyAmount),
     });
   };
