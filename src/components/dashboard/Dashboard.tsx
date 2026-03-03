@@ -149,11 +149,19 @@ const Dashboard: React.FC = () => {
               </div>
 
               {/* Account Menu */}
-              <div className="flex justify-end items-center gap-4">
+              <div className="flex justify-end items-center gap-2">
+                <Link href="/kyc">
+                  <Button 
+                    variant="ghost" 
+                    className="text-green-400 hover:text-green-300 hover:bg-green-950/30 text-sm"
+                  >
+                    KYC
+                  </Button>
+                </Link>
                 <Link href="/token">
                   <Button 
                     variant="ghost" 
-                    className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-950/30"
+                    className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-950/30 text-sm"
                   >
                     Token
                   </Button>
@@ -161,7 +169,7 @@ const Dashboard: React.FC = () => {
                 <Link href="/contracts/" target="_blank">
                   <Button 
                     variant="ghost" 
-                    className="text-orange-400 hover:text-orange-300 hover:bg-orange-950/30"
+                    className="text-orange-400 hover:text-orange-300 hover:bg-orange-950/30 text-sm"
                   >
                     Contracts
                   </Button>
@@ -169,7 +177,7 @@ const Dashboard: React.FC = () => {
                 <Link href="/get-started">
                   <Button 
                     variant="outline" 
-                    className="flex border-white/20 text-white hover:bg-white/10 px-6"
+                    className="flex border-white/20 text-white hover:bg-white/10 px-4 text-sm"
                   >
                     Get Started
                   </Button>
