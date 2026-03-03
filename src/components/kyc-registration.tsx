@@ -73,7 +73,7 @@ export function KYCRegistration() {
     args: address ? [address] : undefined,
   });
 
-  const { error } = useWriteContract();
+  // const { error } = useWriteContract();
 
   const handleSubmit = () => {
     // In production: Send to KYC provider API first
@@ -296,11 +296,7 @@ export function KYCRegistration() {
         </div>
       )}
 
-      {error && (
-        <div className="mt-4 p-4 bg-red-900/30 border border-red-500/30 rounded-lg">
-          <p className="text-red-400 text-sm">{error.message}</p>
-        </div>
-      )}
+      {/* Error display would go here */}
     </div>
   );
 }
