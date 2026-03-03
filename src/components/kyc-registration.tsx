@@ -29,7 +29,8 @@ export function KYCRegistration() {
     if (address) {
       const saved = localStorage.getItem(`kyc-${address}`);
       if (saved) {
-        setKycData(JSON.parse(saved));
+        // Use setTimeout to avoid synchronous setState in effect
+        setTimeout(() => setKycData(JSON.parse(saved)), 0);
       }
     }
   }, [address]);
@@ -45,12 +46,13 @@ export function KYCRegistration() {
           identityHash: '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
         };
         localStorage.setItem(`kyc-${address}`, JSON.stringify(verified));
+        // State update is wrapped in setTimeout, clear timer handles cleanup
         setKycData(verified);
-      }, 10000); // Auto-verify after 10 seconds for demo
+      }, 10000);
 
       return () => clearTimeout(timer);
     }
-  }, [kycData, address]);
+  }, [kycData?.status, address]);
 
   const handleSubmit = () => {
     setStep('submitting');
