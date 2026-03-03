@@ -26,6 +26,42 @@ export function KYCRegistration() {
     isAccredited: false,
   });
   const [ssnError, setSsnError] = useState('');
+  const [nameError, setNameError] = useState('');
+
+  // Validate full name (at least first and last name)
+  const validateName = (value: string) => {
+    const trimmed = value.trim();
+    if (trimmed.length === 0) {
+      setNameError('');
+      return false;
+    }
+    // Check for at least 2 words (first and last name)
+    const words = trimmed.split(/\s+/).filter(word => word.length > 0);
+    if (words.length < 2) {
+      setNameError('Please enter both first and last name');
+      return false;
+    }
+    // Check each word is at least 2 characters
+    const shortWords = words.filter(word => word.length < 2);
+    if (shortWords.length > 0) {
+      setNameError('Each name must be at least 2 characters');
+      return false;
+    }
+    // Check for valid characters (letters, spaces, hyphens, apostrophes)
+    const validNamePattern = /^[a-zA-Z\s\-\'\.]+$/;
+    if (!validNamePattern.test(trimmed)) {
+      setNameError('Name can only contain letters, spaces, hyphens, and apostrophes');
+      return false;
+    }
+    setNameError('');
+    return true;
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFormData({...formData, fullName: value});
+    validateName(value);
+  };
 
   // Format SSN as user types (XXX-XX-XXXX)
   const formatSSN = (value: string) => {
@@ -350,10 +386,21 @@ export function KYCRegistration() {
               <label className="block text-gray-400 text-sm mb-2">Full Legal Name</label>
               <Input
                 value={formData.fullName}
-                onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                onChange={handleNameChange}
                 placeholder="John Doe"
-                className="bg-gray-800 border-gray-700 text-white h-12"
+                className={`bg-gray-800 text-white h-12 ${
+                  nameError ? 'border-red-500 focus:border-red-500' : 
+                  formData.fullName.trim().split(/\s+/).filter(w => w.length > 0).length >= 2 ? 'border-green-500 focus:border-green-500' : 
+                  'border-gray-700'
+                }`}
               />
+              {nameError ? (
+                <p className="text-red-400 text-xs mt-1">{nameError}</p>
+              ) : formData.fullName.trim().split(/\s+/).filter(w => w.length > 0).length >= 2 ? (
+                <p className="text-green-400 text-xs mt-1">✓ Valid name</p>
+              ) : (
+                <p className="text-gray-500 text-xs mt-1">Enter first and last name</p>
+              )}
             </div>
 
             <div>
@@ -410,7 +457,7 @@ export function KYCRegistration() {
           <div className="pt-4 space-y-3">
             <Button 
               onClick={handleSubmit}
-              disabled={!formData.fullName || formData.ssn.length < 11 || ssnError !== ''}
+              disabled={nameError !== '' || formData.fullName.trim().split(/\s+/).filter(w => w.length > 0).length < 2 || formData.ssn.length < 11 || ssnError !== ''}
               className="w-full bg-gradient-to-r from-cyan-500 to-orange-500 text-white py-6 text-lg font-semibold hover:opacity-90 disabled:opacity-50"
             >
               Submit for Verification
