@@ -1,4 +1,4 @@
-import { useAccount, useConnect, useDisconnect, useReadContract, useWriteContract, useBalance } from 'wagmi';
+import { useAccount, useConnect, useDisconnect, useReadContract, useWriteContract } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 import { parseEther, formatEther } from 'viem';
 import { useState } from 'react';
@@ -64,7 +64,7 @@ export function TokenMinter() {
     functionName: 'totalSupply',
   });
 
-  const { data: maxSupply } = useReadContract({
+  const { data: maxSupplyData } = useReadContract({
     address: TOKEN_ADDRESS,
     abi: TOKEN_ABI,
     functionName: 'maxSupply',
@@ -117,13 +117,13 @@ export function TokenMinter() {
         <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
           <p className="text-gray-400 text-sm mb-1">Your Balance</p>
           <p className="text-2xl font-bold text-cyan-400">
-            {balance ? formatEther(balance) : '0'} BLT
+            {balance && typeof balance === 'bigint' ? formatEther(balance) : '0'} BLT
           </p>
         </div>
         <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
           <p className="text-gray-400 text-sm mb-1">Total Supply</p>
           <p className="text-2xl font-bold text-orange-400">
-            {totalSupply ? formatEther(totalSupply) : '0'} BLT
+            {totalSupply && typeof totalSupply === 'bigint' ? formatEther(totalSupply) : '0'} BLT
           </p>
         </div>
       </div>
