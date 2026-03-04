@@ -106,10 +106,11 @@
         .content {
             flex: 1;
             display: flex;
-            padding: 60px 80px;
-            gap: 80px;
+            padding: 40px 80px 30px;
+            gap: 60px;
             position: relative;
             z-index: 10;
+            min-height: 0;
         }
         
         .left-column {
@@ -230,7 +231,7 @@
         
         /* Bottom bar */
         .bottom-bar {
-            padding: 30px 80px;
+            padding: 20px 80px;
             border-top: 1px solid rgba(255,255,255,0.1);
             display: flex;
             align-items: center;
@@ -238,6 +239,7 @@
             position: relative;
             z-index: 10;
             background: rgba(0,0,0,0.3);
+            flex-shrink: 0;
         }
         
         .tech-stack {
@@ -304,13 +306,14 @@
         
         /* Legal Notice */
         .legal-notice {
-            margin: 0 80px 20px;
-            padding: 20px 28px;
+            margin: 0 80px 15px;
+            padding: 16px 24px;
             background: rgba(255, 193, 7, 0.08);
             border: 1px solid rgba(255, 193, 7, 0.3);
             border-radius: 12px;
             position: relative;
             z-index: 10;
+            flex-shrink: 0;
         }
         
         .legal-notice strong {
