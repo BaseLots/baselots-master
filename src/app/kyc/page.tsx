@@ -13,20 +13,18 @@ export default function KYCPage() {
             <Link href="/" className="flex-shrink-0">
               <img src="/logo.svg" alt="BaseLots" className="h-10 w-auto" />
             </Link>
-            <div className="flex-1 flex justify-center">
-              <h1 className="text-xl font-bold">
-                <span className="text-cyan-400">KYC</span>{' '}
-                <span className="text-white">Verification</span>
-              </h1>
-            </div>
-            <div className="flex-shrink-0 w-10" />
           </div>
         </div>
       </header>
 
-      <div className="pt-12">
+      {/* Hero Section */}
+      <div className="pt-12 pb-8">
         <div className="text-center mb-8">
-          <p className="text-gray-400">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
+            <span className="text-cyan-400">KYC</span>{' '}
+            <span className="text-white">Verification</span>
+          </h1>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
             Complete identity verification to invest in BaseLots properties
           </p>
         </div>
