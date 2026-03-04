@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield,
@@ -79,25 +80,25 @@ const FlowStep = ({
         : 'border-white/10 bg-white/5'
     }`}
   >
-    <div className="flex items-start gap-4">
-      <div className={`p-3 rounded-xl ${
+    <div className="flex items-start gap-3 sm:gap-4">
+      <div className={`p-2 sm:p-3 rounded-xl flex-shrink-0 ${
         isActive ? 'bg-[#FF5722]' : isCompleted ? 'bg-green-500' : 'bg-white/10'
       }`}>
-        <Icon className="w-6 h-6 text-white" />
+        <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
       </div>
-      <div className="flex-1">
-        <h3 className={`font-semibold mb-1 ${isActive ? 'text-[#FF5722]' : 'text-white'}`}>
+      <div className="flex-1 min-w-0">
+        <h3 className={`font-semibold mb-1 text-sm sm:text-base ${isActive ? 'text-[#FF5722]' : 'text-white'}`}>
           {title}
         </h3>
-        <p className="text-sm text-white/60">{description}</p>
+        <p className="text-xs sm:text-sm text-white/60 break-words">{description}</p>
       </div>
       {isCompleted && (
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="text-green-400"
+          className="text-green-400 flex-shrink-0"
         >
-          <CheckCircle2 className="w-6 h-6" />
+          <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
         </motion.div>
       )}
     </div>
@@ -250,7 +251,7 @@ export default function HSPDemoPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden w-full">
       {/* Animated Background */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,87,34,0.15),transparent_50%)]" />
@@ -263,17 +264,24 @@ export default function HSPDemoPage() {
         {/* Header */}
         <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-gradient-to-br from-[#FF5722] to-[#FF8A65]">
-                  <Shield className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="font-bold text-xl">Heritage Shield Protocol</h1>
-                  <p className="text-xs text-white/50">Automated Inheritance on Arbitrum Stylus</p>
-                </div>
+            <div className="flex items-center h-16 py-2">
+              {/* Logo - left */}
+              <Link href="/" className="flex-shrink-0">
+                <img src="/logo.svg" alt="BaseLots" className="h-10 w-auto" />
+              </Link>
+              
+              {/* Center title */}
+              <div className="flex-1 flex flex-col items-center justify-center">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">
+                  <span className="text-[#00D4FF]">Heritage</span>{' '}
+                  <span className="text-[#FF5722]">Shield</span>{' '}
+                  <span className="text-white">Protocol</span>
+                </h1>
+                <p className="text-xs text-white/50 hidden sm:block">Automated Inheritance on Arbitrum Stylus</p>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/30">
+              
+              {/* Live badge - right */}
+              <div className="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/30">
                 <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                 <span className="text-sm text-green-400">Live Demo</span>
               </div>
@@ -281,7 +289,7 @@ export default function HSPDemoPage() {
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16 overflow-x-hidden">
           {/* Hero Section */}
           <section className="text-center space-y-6">
             <motion.div
@@ -313,16 +321,29 @@ export default function HSPDemoPage() {
               className="text-xl text-white/60 max-w-3xl mx-auto"
             >
               Heritage Shield Protocol automates the asset transfer phase of inheritance. Once verified 
-              records trigger the smart contract, your property tokens move to beneficiaries in seconds 
-              — bypassing the 18-month probate wait for asset access.
+              records trigger the smart contract, your property tokens move to beneficiaries in seconds,
+              bypassing the 18-month probate wait for asset access.
             </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="max-w-3xl mx-auto p-4 rounded-lg bg-amber-500/10 border border-amber-500/30"
+            >
+              <p className="text-sm text-amber-200/80">
+                <strong className="text-amber-400">Legal Notice:</strong> HSP execution is subject to state-mandated creditor notice periods. 
+                Smart contract transfers occur after statutory waiting periods are satisfied, ensuring compliance with probate law 
+                while eliminating administrative delays.
+              </p>
+            </motion.div>
           </section>
 
           {/* Main Demo Grid */}
-          <div className="grid lg:grid-cols-2 gap-8">
+          <div className="grid lg:grid-cols-2 gap-8 w-full min-w-0">
             {/* Left: Flow Visualization */}
-            <section className="space-y-6">
-              <div className="flex items-center justify-between">
+            <section className="space-y-6 w-full min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <h3 className="text-2xl font-bold flex items-center gap-2">
                   <Activity className="w-6 h-6 text-[#00D4FF]" />
                   How HSP Works
@@ -389,7 +410,7 @@ export default function HSPDemoPage() {
             </section>
 
             {/* Right: Tokenization & Activity */}
-            <section className="space-y-6">
+            <section className="space-y-6 w-full min-w-0">
               {/* Property Tokenization Visualizer */}
               <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
                 <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -519,8 +540,8 @@ export default function HSPDemoPage() {
             </div>
 
             {/* Architecture Diagram */}
-            <div className="max-w-4xl mx-auto p-8 rounded-2xl bg-white/5 border border-white/10">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="max-w-4xl mx-auto p-4 sm:p-8 rounded-2xl bg-white/5 border border-white/10 overflow-x-auto">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4 min-w-[300px]">
                 {/* Step 1 */}
                 <div className="flex flex-col items-center text-center p-4">
                   <div className="w-16 h-16 rounded-xl bg-[#FF5722]/20 flex items-center justify-center mb-3">
