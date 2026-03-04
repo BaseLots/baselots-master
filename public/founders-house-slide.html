@@ -328,24 +328,9 @@
             margin: 0;
         }
         
-        /* Print/Save instructions */
-        .save-instructions {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            z-index: 100;
-        }
-        
         @media print {
             body { padding: 0; }
             .slide { box-shadow: none; }
-            .save-instructions { display: none; }
         }
     </style>
 </head>
@@ -422,10 +407,6 @@
                 MVP Live on Arbitrum Sepolia
             </div>
         </div>
-    </div>
-    
-    <div class="save-instructions">
-        💡 Press Ctrl+P (or Cmd+P) to save as PDF • Dimensions: 1920×1080 (16:9)
     </div>
 </body>
 </html>
