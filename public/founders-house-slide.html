@@ -27,8 +27,6 @@
             position: relative;
             overflow: hidden;
             box-shadow: 0 50px 100px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
         }
         
         /* Background effects */
@@ -56,37 +54,20 @@
         
         /* Header */
         .header {
-            padding: 60px 80px 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 50px 80px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: relative;
             z-index: 10;
         }
         
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        
-        .logo {
-            width: 60px;
-            height: 60px;
-        }
-        
-        .company-name {
-            font-size: 42px;
-            font-weight: 800;
-            color: white;
-            letter-spacing: -1px;
-        }
-        
-        .company-name span {
-            background: linear-gradient(135deg, #00D4FF, #FF5722);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .logo-section img {
+            height: 50px;
+            width: auto;
         }
         
         .stylus-badge {
@@ -104,29 +85,30 @@
         
         /* Main content */
         .content {
-            flex: 1;
+            position: absolute;
+            top: 130px;
+            left: 80px;
+            right: 80px;
+            bottom: 280px;
             display: flex;
-            padding: 40px 80px 20px;
             gap: 60px;
-            position: relative;
             z-index: 10;
-            min-height: 0;
-            margin-bottom: 10px;
         }
         
         .left-column {
             flex: 1.1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
+            padding-top: 20px;
         }
         
         .headline {
-            font-size: 72px;
+            font-size: 68px;
             font-weight: 800;
             color: white;
             line-height: 1.1;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             letter-spacing: -2px;
         }
         
@@ -139,17 +121,16 @@
         }
         
         .subheadline {
-            font-size: 32px;
+            font-size: 26px;
             color: rgba(255,255,255,0.7);
             line-height: 1.5;
-            margin-bottom: 50px;
+            margin-bottom: 40px;
             font-weight: 400;
         }
         
         .stats-row {
             display: flex;
             gap: 50px;
-            margin-top: 10px;
         }
         
         .stat {
@@ -158,7 +139,7 @@
         }
         
         .stat-number {
-            font-size: 56px;
+            font-size: 52px;
             font-weight: 800;
             background: linear-gradient(135deg, #00D4FF, #FF5722);
             -webkit-background-clip: text;
@@ -167,7 +148,7 @@
         }
         
         .stat-label {
-            font-size: 18px;
+            font-size: 17px;
             color: rgba(255,255,255,0.5);
             font-weight: 500;
             margin-top: 8px;
@@ -177,15 +158,16 @@
             flex: 0.9;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            gap: 30px;
+            justify-content: flex-start;
+            padding-top: 20px;
+            gap: 25px;
         }
         
         .feature-card {
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 20px;
-            padding: 32px;
+            padding: 28px;
             backdrop-filter: blur(10px);
         }
         
@@ -200,14 +182,14 @@
         }
         
         .feature-icon {
-            width: 50px;
-            height: 50px;
+            width: 46px;
+            height: 46px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            margin-bottom: 16px;
+            font-size: 22px;
+            margin-bottom: 14px;
         }
         
         .feature-card.patent .feature-icon {
@@ -219,29 +201,56 @@
         }
         
         .feature-title {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
             color: white;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         
         .feature-desc {
-            font-size: 18px;
+            font-size: 16px;
             color: rgba(255,255,255,0.6);
             line-height: 1.5;
         }
         
+        /* Legal Notice */
+        .legal-notice {
+            position: absolute;
+            bottom: 130px;
+            left: 80px;
+            right: 80px;
+            padding: 16px 24px;
+            background: rgba(255, 193, 7, 0.08);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 12px;
+            z-index: 10;
+        }
+        
+        .legal-notice strong {
+            color: #FFC107;
+            font-weight: 700;
+        }
+        
+        .legal-notice p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 15px;
+            line-height: 1.5;
+            margin: 0;
+        }
+        
         /* Bottom bar */
         .bottom-bar {
-            padding: 20px 80px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px 80px;
             border-top: 1px solid rgba(255,255,255,0.1);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: relative;
             z-index: 10;
             background: rgba(0,0,0,0.3);
-            flex-shrink: 0;
         }
         
         .tech-stack {
@@ -280,56 +289,6 @@
             gap: 12px;
         }
         
-        .contract-address span {
-            color: #00D4FF;
-        }
-        
-        /* Arbitrum accent */
-        .arbitrum-accent {
-            position: absolute;
-            bottom: 140px;
-            right: 80px;
-            padding: 16px 28px;
-            background: linear-gradient(135deg, #00D4FF20, #FF572220);
-            border: 1px solid rgba(0,212,255,0.3);
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .arbitrum-accent::before {
-            content: '⚡';
-            font-size: 18px;
-        }
-        
-        /* Legal Notice */
-        .legal-notice {
-            margin: 30px 80px 20px;
-            padding: 16px 24px;
-            background: rgba(255, 193, 7, 0.08);
-            border: 1px solid rgba(255, 193, 7, 0.3);
-            border-radius: 12px;
-            position: relative;
-            z-index: 10;
-            flex-shrink: 0;
-        }
-        
-        .legal-notice strong {
-            color: #FFC107;
-            font-weight: 700;
-        }
-        
-        .legal-notice p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 15px;
-            line-height: 1.5;
-            margin: 0;
-        }
-        
         @media print {
             body { padding: 0; }
             .slide { box-shadow: none; }
@@ -341,8 +300,7 @@
         <!-- Header -->
         <div class="header">
             <div class="logo-section">
-                <!-- BaseLots Logo SVG -->
-                <img src="/logo.svg" alt="BaseLots" class="logo" style="height: 50px; width: auto;">
+                <img src="/logo.svg" alt="BaseLots">
             </div>
             <div class="stylus-badge">Built on Arbitrum Stylus</div>
         </div>
