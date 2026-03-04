@@ -188,6 +188,8 @@ export function KYCRegistration() {
   };
 
   if (!isConnected) {
+    const isMobile = typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
     return (
       <div className="p-8 text-center max-w-md mx-auto">
         <div className="w-20 h-20 bg-gradient-to-br from-cyan-500/20 to-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -197,12 +199,30 @@ export function KYCRegistration() {
         </div>
         <h2 className="text-2xl font-bold mb-4 text-white">KYC Verification</h2>
         <p className="text-gray-400 mb-8">Connect your wallet to complete identity verification and start investing in BaseLots properties.</p>
+        
         <Button 
           onClick={() => connect({ connector: injected() })}
           className="w-full bg-gradient-to-r from-cyan-500 to-orange-500 text-white py-6 text-lg font-semibold hover:opacity-90"
         >
-          Connect Wallet
+          {isMobile ? 'Connect MetaMask' : 'Connect Wallet'}
         </Button>
+        
+        {isMobile && (
+          <div className="mt-6 p-4 bg-gray-800/50 rounded-lg text-left">
+            <p className="text-sm text-gray-400 mb-2"><strong className="text-white">On Mobile?</strong> You need a Web3 wallet:</p>
+            <ul className="text-xs text-gray-500 space-y-1 list-disc list-inside">
+              <li>MetaMask mobile app recommended</li>
+              <li>Use the browser inside MetaMask app</li>
+              <li>Or open this page in your wallet&apos;s dApp browser</li>
+            </ul>
+            <a 
+              href="https://metamask.app.link/dapp/baselots-master.vercel.app/kyc"
+              className="mt-3 inline-block text-sm text-cyan-400 hover:text-cyan-300"
+            >
+              Open in MetaMask →
+            </a>
+          </div>
+        )}
       </div>
     );
   }

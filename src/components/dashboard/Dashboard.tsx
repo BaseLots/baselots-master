@@ -122,64 +122,99 @@ const Dashboard: React.FC = () => {
         {/* Header */}
         <header className="sticky top-0 z-20 bg-black/80 backdrop-blur-xl border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-20 md:grid md:grid-cols-3">
-              {/* Logo */}
-              <div className="flex items-center gap-3">
-                <img src="/logo.svg" alt="BaseLots" className="h-24 w-auto md:h-20" />
-              </div>
-
-              {/* Stats Summary - Centered (desktop only) */}
-              <div className="hidden md:flex items-center justify-center gap-6">
-                <div className="text-center">
-                  <p className="text-xs text-white/50 uppercase tracking-wider">Properties</p>
-                  <p className="text-lg font-bold text-white">{mockProperties.length}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xs text-white/50 uppercase tracking-wider">Avg Yield</p>
-                  <p className="text-lg font-bold text-emerald-400">
-                    {(mockProperties.reduce((acc, p) => acc + p.expectedYield, 0) / mockProperties.length).toFixed(1)}%
-                  </p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xs text-white/50 uppercase tracking-wider">Total Value</p>
-                  <p className="text-lg font-bold text-[#00bcd4]">
-                    ${(mockProperties.reduce((acc, p) => acc + p.totalValue, 0) / 1000000).toFixed(1)}M
-                  </p>
-                </div>
-              </div>
-
-              {/* Account Menu */}
-              <div className="flex justify-end items-center gap-2">
-                <Link href="/kyc">
-                  <Button 
-                    variant="ghost" 
-                    className="text-green-400 hover:text-green-300 hover:bg-green-950/30 text-sm"
-                  >
-                    KYC
-                  </Button>
-                </Link>
-                <Link href="/token">
-                  <Button 
-                    variant="ghost" 
-                    className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-950/30 text-sm"
-                  >
-                    Token
-                  </Button>
-                </Link>
-                <Link href="/contracts/" target="_blank">
-                  <Button 
-                    variant="ghost" 
-                    className="text-orange-400 hover:text-orange-300 hover:bg-orange-950/30 text-sm"
-                  >
-                    Contracts
-                  </Button>
+            {/* Mobile Layout (< sm): Two rows */}
+            <div className="flex sm:hidden flex-col py-2">
+              {/* Row 1: Logo + Get Started */}
+              <div className="flex items-center justify-between">
+                <Link href="/">
+                  <img src="/logo.svg" alt="BaseLots" className="h-14 w-auto" />
                 </Link>
                 <Link href="/get-started">
                   <Button 
                     variant="outline" 
-                    className="flex border-white/20 text-white hover:bg-white/10 px-4 text-sm"
+                    className="border-white/20 text-white hover:bg-white/10 px-4 py-2 h-10 text-sm whitespace-nowrap"
                   >
                     Get Started
+                  </Button>
+                </Link>
+              </div>
+              {/* Row 2: Secondary nav */}
+              <div className="flex items-center justify-center gap-2 mt-2">
+                <Link href="/kyc">
+                  <Button variant="ghost" className="text-green-400 hover:text-green-300 hover:bg-green-950/30 text-xs px-2 py-1 h-8">
+                    KYC
+                  </Button>
+                </Link>
+                <Link href="/hsp-demo">
+                  <Button variant="ghost" className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/30 text-xs px-2 py-1 h-8">
+                    HSP Demo
+                  </Button>
+                </Link>
+                <Link href="/contracts/">
+                  <Button variant="ghost" className="text-orange-400 hover:text-orange-300 hover:bg-orange-950/30 text-xs px-2 py-1 h-8">
+                    Contracts
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Desktop Layout (>= sm): Two rows */}
+            <div className="hidden sm:flex flex-col py-2">
+              {/* Row 1: Logo, Stats (centered), Get Started */}
+              <div className="flex items-center relative">
+                {/* Logo */}
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <Link href="/">
+                    <img src="/logo.svg" alt="BaseLots" className="h-20 w-auto" />
+                  </Link>
+                </div>
+
+                {/* Stats Summary - Absolute center */}
+                <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center gap-8">
+                  <div className="text-center">
+                    <p className="text-xs text-white/50 uppercase tracking-wider">Properties</p>
+                    <p className="text-lg font-bold text-white">{mockProperties.length}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs text-white/50 uppercase tracking-wider">Avg Yield</p>
+                    <p className="text-lg font-bold text-emerald-400">
+                      {(mockProperties.reduce((acc, p) => acc + p.expectedYield, 0) / mockProperties.length).toFixed(1)}%
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs text-white/50 uppercase tracking-wider">Total Value</p>
+                    <p className="text-lg font-bold text-[#00bcd4]">
+                      ${(mockProperties.reduce((acc, p) => acc + p.totalValue, 0) / 1000000).toFixed(1)}M
+                    </p>
+                  </div>
+                </div>
+
+                {/* Spacer */}
+                <div className="flex-1"></div>
+
+                {/* Get Started */}
+                <Link href="/get-started">
+                  <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 px-4 text-sm whitespace-nowrap">
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Row 2: Secondary nav centered with more spacing */}
+              <div className="flex items-center justify-center gap-6 mt-3">
+                <Link href="/kyc">
+                  <Button variant="ghost" className="text-green-400 hover:text-green-300 hover:bg-green-950/30 text-sm px-4">
+                    KYC
+                  </Button>
+                </Link>
+                <Link href="/hsp-demo">
+                  <Button variant="ghost" className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/30 text-sm px-4">
+                    HSP Demo
+                  </Button>
+                </Link>
+                <Link href="/contracts/">
+                  <Button variant="ghost" className="text-orange-400 hover:text-orange-300 hover:bg-orange-950/30 text-sm px-4">
+                    Contracts
                   </Button>
                 </Link>
               </div>
@@ -496,9 +531,9 @@ const Dashboard: React.FC = () => {
                 <a href="#" className="text-white/50 hover:text-white transition-colors">Privacy</a>
                 <a href="#" className="text-white/50 hover:text-white transition-colors">Support</a>
                 <span className="text-white/20">|</span>
-                <a href="#" className="text-white/40 hover:text-[#FF5722] transition-colors text-xs">
+                <Link href="/token" className="text-white/40 hover:text-[#FF5722] transition-colors text-xs">
                   Connect Wallet
-                </a>
+                </Link>
               </div>
             </div>
           </div>

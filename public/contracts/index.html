@@ -64,38 +64,71 @@
             margin-right: 1.5rem;
         }
         .links a:hover { color: #fff; }
+        .highlight {
+            background: #FF572220;
+            border: 1px solid #FF572240;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            color: #FF5722;
+        }
+        .highlight strong { color: #fff; }
+        .diagram {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #888;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        .diagram .box { color: #00D4FF; }
+        .diagram .prop { color: #FF5722; }
     </style>
 </head>
 <body>
     <div class="container">
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+            <a href="/" style="display: flex; align-items: center;">
+                <img src="/logo.svg" alt="BaseLots" style="height: 40px; width: auto;">
+            </a>
+        </div>
         <span class="badge">ERC-3643 / Arbitrum</span>
         <h1>BaseLots Smart Contracts</h1>
         <p class="subtitle">Fractional real estate security token infrastructure</p>
 
+        <div class="highlight">
+            <strong>BLOCKS Model:</strong> Each property has its own token (e.g., BLOCKS-Austin-001, BLOCKS-Phoenix-001). 
+            There is no single "BaseLots Token" — investors purchase BLOCKS specific to each property.
+        </div>
+
         <div class="contract">
             <h3>📄 BaseLotsToken.sol</h3>
-            <p>Main security token contract implementing ERC-3643 standard. Handles minting, transfers with compliance checks, batch operations, and HSP integration hooks.</p>
+            <p>ERC-3643 security token contract representing BLOCKS — fractional shares of a specific property. Each property deployment creates a new token instance (e.g., BLOCKS-Austin-001). Handles minting during property offering, compliance-enforced transfers, and dividend distribution per property.</p>
             <a href="/contracts/BaseLotsToken.html">View Source →</a>
             <a href="/contracts/BaseLotsToken.sol" download style="margin-left: 1rem;">Download →</a>
         </div>
 
         <div class="contract">
             <h3>🆔 IdentityRegistry.sol</h3>
-            <p>On-chain KYC/AML registry. Links wallet addresses to verified identities, tracks accreditation status, and supports multi-wallet linking per identity.</p>
+            <p>On-chain KYC/AML registry shared across all properties. Links wallet addresses to verified identities, tracks accreditation status, and supports multi-wallet linking per identity. One registration works for all BLOCKS properties.</p>
             <a href="/contracts/IdentityRegistry.html">View Source →</a>
             <a href="/contracts/IdentityRegistry.sol" download style="margin-left: 1rem;">Download →</a>
         </div>
 
         <div class="contract">
             <h3>✓ Compliance.sol</h3>
-            <p>Modular compliance engine enforcing transfer rules: max balance limits, holding periods, Reg CF investor caps (500), and minimum investments.</p>
+            <p>Modular compliance engine enforcing transfer rules per property: max balance limits, holding periods, Reg CF investor caps (500 per property), and minimum investments.</p>
             <a href="/contracts/Compliance.html">View Source →</a>
             <a href="/contracts/Compliance.sol" download style="margin-left: 1rem;">Download →</a>
         </div>
 
         <div class="contract">
             <h3>🛡️ HeritageShield.sol</h3>
-            <p>Automated inheritance protocol (HSP). Beneficiary designation, 90-day challenge period, oracle integration for death verification, and trustless execution.</p>
+            <p>Automated inheritance protocol (HSP) that works across all BLOCKS holdings. Beneficiary designation aggregates across all properties, 90-day challenge period, oracle integration for death verification, and trustless execution.</p>
             <a href="/contracts/HeritageShield.html">View Source →</a>
             <a href="/contracts/HeritageShield.sol" download style="margin-left: 1rem;">Download →</a>
         </div>
