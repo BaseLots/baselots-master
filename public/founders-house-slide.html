@@ -302,6 +302,29 @@
             font-size: 18px;
         }
         
+        /* Legal Notice */
+        .legal-notice {
+            margin: 0 80px 20px;
+            padding: 20px 28px;
+            background: rgba(255, 193, 7, 0.08);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 12px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .legal-notice strong {
+            color: #FFC107;
+            font-weight: 700;
+        }
+        
+        .legal-notice p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 15px;
+            line-height: 1.5;
+            margin: 0;
+        }
+        
         /* Print/Save instructions */
         .save-instructions {
             position: fixed;
@@ -374,6 +397,11 @@
                     <div class="feature-desc">Rust/WASM smart contracts deliver 10x compute efficiency for compliance-heavy token logic, ideal for real-world asset tokenization at scale.</div>
                 </div>
             </div>
+        </div>
+        
+        <!-- Legal Notice -->
+        <div class="legal-notice">
+            <p><strong>Legal Notice:</strong> HSP execution is subject to state-mandated creditor notice periods. Smart contract transfers occur after statutory waiting periods are satisfied, ensuring compliance with probate law while eliminating administrative delays.</p>
         </div>
         
         <!-- Bottom Bar -->
