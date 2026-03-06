@@ -21,7 +21,7 @@ const TOKEN_ABI = [
   },
   {
     "inputs": [],
-    "name": "buy_tokens",
+    "name": "buyTokens",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "payable",
     "type": "function"
@@ -43,7 +43,7 @@ const TOKEN_ABI = [
 ];
 
 // Arbitrum Sepolia deployed address (from deployment.json)
-const TOKEN_ADDRESS = '0x477Ca46D56b63b41978De9327aB002A85A9892c0' as const;
+const TOKEN_ADDRESS = '0x073E644868590F62cCd402A5c06A1501478DEd5C' as const;
 
 export function TokenMinter() {
   const { address, isConnected } = useAccount();
@@ -76,7 +76,7 @@ export function TokenMinter() {
     writeContract({
       address: TOKEN_ADDRESS,
       abi: TOKEN_ABI,
-      functionName: 'buy_tokens',
+      functionName: 'buyTokens',
       value: parseEther(buyAmount),
     });
   };
