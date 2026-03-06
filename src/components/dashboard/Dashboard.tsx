@@ -46,6 +46,10 @@ const Dashboard: React.FC = () => {
   const [filters, setFilters] = useState<PropertyFilters>({});
   const [showFilters, setShowFilters] = useState(false);
 
+  // Check if we're on production (baselots.com) - hide dev/demo features
+  const isProduction = typeof window !== 'undefined' && 
+    (window.location.hostname === 'baselots.com' || window.location.hostname === 'www.baselots.com');
+
   // Filter properties based on search and filters
   const filteredProperties = useMemo(() => {
     return mockProperties.filter((property) => {
@@ -138,24 +142,26 @@ const Dashboard: React.FC = () => {
                   </Button>
                 </Link>
               </div>
-              {/* Row 2: Secondary nav */}
-              <div className="flex items-center justify-center gap-2 mt-2">
-                <Link href="/kyc">
-                  <Button variant="ghost" className="text-green-400 hover:text-green-300 hover:bg-green-950/30 text-xs px-2 py-1 h-8">
-                    KYC
-                  </Button>
-                </Link>
-                <Link href="/hsp-demo">
-                  <Button variant="ghost" className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/30 text-xs px-2 py-1 h-8">
-                    HSP Demo
-                  </Button>
-                </Link>
-                <Link href="/contracts/">
-                  <Button variant="ghost" className="text-orange-400 hover:text-orange-300 hover:bg-orange-950/30 text-xs px-2 py-1 h-8">
-                    Contracts
-                  </Button>
-                </Link>
-              </div>
+              {/* Row 2: Secondary nav - hidden on production */}
+              {!isProduction && (
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <Link href="/kyc">
+                    <Button variant="ghost" className="text-green-400 hover:text-green-300 hover:bg-green-950/30 text-xs px-2 py-1 h-8">
+                      KYC
+                    </Button>
+                  </Link>
+                  <Link href="/hsp-demo">
+                    <Button variant="ghost" className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/30 text-xs px-2 py-1 h-8">
+                      HSP Demo
+                    </Button>
+                  </Link>
+                  <Link href="/contracts/">
+                    <Button variant="ghost" className="text-orange-400 hover:text-orange-300 hover:bg-orange-950/30 text-xs px-2 py-1 h-8">
+                      Contracts
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Desktop Layout (>= sm): Two rows */}
@@ -200,24 +206,26 @@ const Dashboard: React.FC = () => {
                 </Link>
               </div>
 
-              {/* Row 2: Secondary nav centered with more spacing */}
-              <div className="flex items-center justify-center gap-6 mt-3">
-                <Link href="/kyc">
-                  <Button variant="ghost" className="text-green-400 hover:text-green-300 hover:bg-green-950/30 text-sm px-4">
-                    KYC
-                  </Button>
-                </Link>
-                <Link href="/hsp-demo">
-                  <Button variant="ghost" className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/30 text-sm px-4">
-                    HSP Demo
-                  </Button>
-                </Link>
-                <Link href="/contracts/">
-                  <Button variant="ghost" className="text-orange-400 hover:text-orange-300 hover:bg-orange-950/30 text-sm px-4">
-                    Contracts
-                  </Button>
-                </Link>
-              </div>
+              {/* Row 2: Secondary nav centered with more spacing - hidden on production */}
+              {!isProduction && (
+                <div className="flex items-center justify-center gap-6 mt-3">
+                  <Link href="/kyc">
+                    <Button variant="ghost" className="text-green-400 hover:text-green-300 hover:bg-green-950/30 text-sm px-4">
+                      KYC
+                    </Button>
+                  </Link>
+                  <Link href="/hsp-demo">
+                    <Button variant="ghost" className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/30 text-sm px-4">
+                      HSP Demo
+                    </Button>
+                  </Link>
+                  <Link href="/contracts/">
+                    <Button variant="ghost" className="text-orange-400 hover:text-orange-300 hover:bg-orange-950/30 text-sm px-4">
+                      Contracts
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </header>
@@ -530,10 +538,14 @@ const Dashboard: React.FC = () => {
                 <a href="#" className="text-white/50 hover:text-white transition-colors">Terms</a>
                 <a href="#" className="text-white/50 hover:text-white transition-colors">Privacy</a>
                 <a href="#" className="text-white/50 hover:text-white transition-colors">Support</a>
-                <span className="text-white/20">|</span>
-                <Link href="/token" className="text-white/40 hover:text-[#FF5722] transition-colors text-xs">
-                  Connect Wallet
-                </Link>
+                {!isProduction && (
+                  <>
+                    <span className="text-white/20">|</span>
+                    <Link href="/token" className="text-white/40 hover:text-[#FF5722] transition-colors text-xs">
+                      Connect Wallet
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
