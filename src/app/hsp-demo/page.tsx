@@ -559,8 +559,8 @@ export default function HSPDemoPage() {
                   <div className="w-16 h-16 rounded-xl bg-[#00D4FF]/20 flex items-center justify-center mb-3">
                     <Activity className="w-8 h-8 text-[#00D4FF]" />
                   </div>
-                  <h4 className="font-semibold text-sm mb-1">Stylus Engine</h4>
-                  <p className="text-xs text-white/50">Rust/WASM</p>
+                  <h4 className="font-semibold text-sm mb-1">Smart Contract Engine</h4>
+                  <p className="text-xs text-white/50">Solidity</p>
                 </div>
 
                 <ArrowRight className="w-6 h-6 text-white/30 hidden md:block" />

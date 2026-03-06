@@ -311,10 +311,10 @@ const Dashboard: React.FC = () => {
               <div className="md:col-span-2 p-4 rounded-xl bg-black/60 backdrop-blur-xl border border-white/20 shadow-xl">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-2 h-2 rounded-full bg-[#00D4FF] animate-pulse" />
-                  <span className="text-sm text-white font-medium">Powered by Arbitrum Stylus</span>
+                  <span className="text-sm text-white font-medium">Powered by Arbitrum</span>
                 </div>
                 <p className="text-sm text-white/80">
-                  BLOCKS are fractional shares of real estate properties. A $500K property is tokenized into 10,000 BLOCKS at $50 each. Smart contracts written in Rust on Arbitrum Stylus for maximum security and low fees.
+                  BLOCKS are fractional shares of real estate properties. A $500K property is tokenized into 10,000 BLOCKS at $50 each. Built on Arbitrum for low fees and fast finality.
                 </p>
               </div>
             </div>
