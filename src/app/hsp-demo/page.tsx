@@ -172,7 +172,7 @@ export default function HSPDemoPage() {
     {
       icon: User,
       title: 'Property Owner',
-      description: 'Investor holds tokenized real estate shares on Arbitrum Stylus',
+      description: 'Investor holds tokenized real estate shares on Arbitrum',
     },
     {
       icon: Database,
@@ -277,7 +277,7 @@ export default function HSPDemoPage() {
                   <span className="text-[#FF5722]">Shield</span>{' '}
                   <span className="text-white">Protocol</span>
                 </h1>
-                <p className="text-xs text-white/50 hidden sm:block">Automated Inheritance on Arbitrum Stylus</p>
+                <p className="text-xs text-white/50 hidden sm:block">Automated Inheritance on Arbitrum</p>
               </div>
               
               {/* Live badge - right */}
@@ -526,13 +526,13 @@ export default function HSPDemoPage() {
           {/* Architecture Section */}
           <section className="py-12 border-t border-white/10">
             <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold mb-2">Powered by Arbitrum Stylus</h3>
-              <p className="text-white/60">Rust-based smart contracts for maximum security and performance</p>
+              <h3 className="text-2xl font-bold mb-2">Powered by Arbitrum</h3>
+              <p className="text-white/60">EVM-compatible L2 for fractional real estate securities</p>
             </div>
 
             {/* Tech Stack Badges */}
             <div className="flex flex-wrap justify-center gap-3 mb-12">
-              {['Arbitrum Stylus', 'ERC-3643', 'Chainlink Oracles', 'Rust/WASM', 'Solidity Interop'].map((tech) => (
+              {['Arbitrum', 'ERC-3643', 'Chainlink Oracles', 'Solidity', 'Hardhat'].map((tech) => (
                 <div key={tech} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-white/80">
                   {tech}
                 </div>
