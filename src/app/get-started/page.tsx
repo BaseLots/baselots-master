@@ -126,8 +126,8 @@ export default function GetStartedPage() {
             </h1>
             <div className="bg-black/40 backdrop-blur-md rounded-xl p-6 mb-10 max-w-2xl mx-auto border border-white/10">
               <p className="text-xl text-white/80 leading-relaxed">
-                Join thousands of investors waiting to buy $50-$100 shares of
-                rental properties. Be first in line when we launch.
+                Join the waitlist to buy $50-$100 shares of rental properties.
+                Be first in line when we launch.
               </p>
             </div>
 
