@@ -1,0 +1,30 @@
+name: Deploy to VPS (baselots.com)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Production VPS
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
+          script: |
+            cd /var/www/baselots-master
+            git pull origin main
+            npm install
+            npm run build
+            pm2 restart baselots-dynamic
+            echo "✅ Deployment complete!"
