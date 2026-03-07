@@ -53,28 +53,37 @@ export function KYCRegistration() {
     const value = e.target.value;
     setFormData({...formData, email: value});
     validateEmail(value);
+    
+    // Check if user already verified with this email
+    if (validateEmail(value)) {
+      const saved = localStorage.getItem(`kyc-${value}`);
+      if (saved) {
+        try {
+          setKycData(JSON.parse(saved));
+        } catch (e) {
+          console.error('Failed to parse saved KYC data', e);
+        }
+      }
+    }
   };
 
-  // Validate full name (at least first and last name)
+  // Validate full name
   const validateName = (value: string) => {
     const trimmed = value.trim();
     if (trimmed.length === 0) {
       setNameError('');
       return false;
     }
-    // Check for at least 2 words (first and last name)
     const words = trimmed.split(/\s+/).filter(word => word.length > 0);
     if (words.length < 2) {
       setNameError('Please enter both first and last name');
       return false;
     }
-    // Check each word is at least 2 characters
     const shortWords = words.filter(word => word.length < 2);
     if (shortWords.length > 0) {
       setNameError('Each name must be at least 2 characters');
       return false;
     }
-    // Check for valid characters (letters, spaces, hyphens, apostrophes)
     const validNamePattern = /^[a-zA-Z\s\-\'\.]+$/;
     if (!validNamePattern.test(trimmed)) {
       setNameError('Name can only contain letters, spaces, hyphens, and apostrophes');
@@ -90,15 +99,11 @@ export function KYCRegistration() {
     validateName(value);
   };
 
-  // Format SSN as user types (XXX-XX-XXXX)
+  // Format SSN
   const formatSSN = (value: string) => {
-    // Remove all non-digits
     const digits = value.replace(/\D/g, '');
-    
-    // Limit to 9 digits
     const limited = digits.slice(0, 9);
     
-    // Format with dashes
     if (limited.length <= 3) {
       return limited;
     } else if (limited.length <= 5) {
@@ -108,7 +113,7 @@ export function KYCRegistration() {
     }
   };
 
-  // Validate SSN (must be 9 digits)
+  // Validate SSN
   const validateSSN = (value: string) => {
     const digits = value.replace(/\D/g, '');
     if (digits.length === 0) {
@@ -120,7 +125,6 @@ export function KYCRegistration() {
       return false;
     }
     if (digits.length === 9) {
-      // Basic SSN validation
       const firstThree = digits.slice(0, 3);
       if (firstThree === '000' || firstThree === '666' || (parseInt(firstThree) >= 900)) {
         setSsnError('Invalid SSN format');
@@ -147,19 +151,9 @@ export function KYCRegistration() {
     validateSSN(formatted);
   };
 
-  // Load KYC data from localStorage on mount
+  // Simulate admin approval after 10 seconds
   useEffect(() => {
-    if (formData.email) {
-      const saved = localStorage.getItem(`kyc-${formData.email}`);
-      if (saved) {
-        setTimeout(() => setKycData(JSON.parse(saved)), 0);
-      }
-    }
-  }, [formData.email]);
-
-  // Simulate admin approval after 10 seconds in demo mode
-  useEffect(() => {
-    if (kycData?.status === 'pending' && formData.email) {
+    if (kycData?.status === 'pending') {
       const timer = setTimeout(() => {
         const verified: KYCData = {
           ...kycData,
@@ -167,41 +161,46 @@ export function KYCRegistration() {
           verifiedAt: new Date().toISOString(),
           identityHash: '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
         };
-        localStorage.setItem(`kyc-${formData.email}`, JSON.stringify(verified));
+        localStorage.setItem(`kyc-${kycData.email}`, JSON.stringify(verified));
         setKycData(verified);
       }, 10000);
 
       return () => clearTimeout(timer);
     }
-  }, [kycData?.status, formData.email]);
+  }, [kycData?.status, kycData?.email]);
 
   const handleSubmit = () => {
     setStep('submitting');
     
     setTimeout(() => {
-      if (formData.email) {
-        const newKYC: KYCData = {
-          status: 'pending',
-          email: formData.email,
-          fullName: formData.fullName,
-          country: formData.country,
-          isAccredited: formData.isAccredited,
-          submittedAt: new Date().toISOString(),
-          identityHash: '',
-        };
-        localStorage.setItem(`kyc-${formData.email}`, JSON.stringify(newKYC));
-        setKycData(newKYC);
-        setStep('complete');
-      }
+      const newKYC: KYCData = {
+        status: 'pending',
+        email: formData.email,
+        fullName: formData.fullName,
+        country: formData.country,
+        isAccredited: formData.isAccredited,
+        submittedAt: new Date().toISOString(),
+        identityHash: '',
+      };
+      localStorage.setItem(`kyc-${formData.email}`, JSON.stringify(newKYC));
+      setKycData(newKYC);
+      setStep('complete');
     }, 2000);
   };
 
   const resetKYC = () => {
     if (formData.email) {
       localStorage.removeItem(`kyc-${formData.email}`);
-      setKycData(null);
-      setStep('intro');
     }
+    setKycData(null);
+    setStep('intro');
+    setFormData({
+      email: '',
+      fullName: '',
+      ssn: '',
+      country: 'US',
+      isAccredited: false,
+    });
   };
 
   // Show verified status
@@ -324,7 +323,7 @@ export function KYCRegistration() {
         </div>
         <h2 className="text-2xl font-bold text-white mb-2">Application Submitted!</h2>
         <p className="text-gray-400 mb-8">
-          We&apos;ve received your KYC application. You&apos;ll be notified via email once verification is complete.
+          We&apos;ve received your application. You&apos;ll be notified via email once verification is complete.
         </p>
       </div>
     );
@@ -345,7 +344,7 @@ export function KYCRegistration() {
     );
   }
 
-  // Show KYC form
+  // Show form
   if (step === 'form') {
     const isFormValid = 
       validateEmail(formData.email) &&
@@ -358,7 +357,6 @@ export function KYCRegistration() {
           <h2 className="text-2xl font-bold text-white mb-6">Identity Verification</h2>
           
           <div className="space-y-4">
-            {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-2">
                 Email Address *
@@ -373,7 +371,6 @@ export function KYCRegistration() {
               {emailError && <p className="text-red-400 text-sm mt-1">{emailError}</p>}
             </div>
 
-            {/* Full Name */}
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-2">
                 Full Legal Name *
@@ -386,12 +383,11 @@ export function KYCRegistration() {
                 className="bg-gray-800 border-gray-700 text-white"
               />
               {nameError && <p className="text-red-400 text-sm mt-1">{nameError}</p>}
-              {!nameError && formData.fullName.trim().length > 0 && (
+              {!nameError && formData.fullName.trim().length > 0 && validateName(formData.fullName) && (
                 <p className="text-green-400 text-sm mt-1">✓ Name looks good</p>
               )}
             </div>
 
-            {/* SSN */}
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-2">
                 Social Security Number (US) *
@@ -410,7 +406,6 @@ export function KYCRegistration() {
               )}
             </div>
 
-            {/* Country */}
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-2">
                 Country of Residence
@@ -427,7 +422,6 @@ export function KYCRegistration() {
               </select>
             </div>
 
-            {/* Accredited Investor */}
             <div className="flex items-center gap-3 p-4 bg-gray-800/50 rounded-lg">
               <input
                 type="checkbox"
@@ -440,7 +434,7 @@ export function KYCRegistration() {
                 I am an accredited investor
                 <Dialog>
                   <DialogTrigger asChild>
-                    <button className="text-cyan-400 hover:text-cyan-300 ml-2">
+                    <button className="text-cyan-400 hover:text-cyan-300 ml-2" type="button">
                       (What&apos;s this?)
                     </button>
                   </DialogTrigger>
