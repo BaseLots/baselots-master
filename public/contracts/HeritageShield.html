@@ -239,14 +239,14 @@ contract HeritageShield is AccessControl {
         require(status.challenger != address(0), &quot;No active challenge&quot;);
         
         if (successful) {
-            // Challenge successful — death report was false
+            // Challenge successful: death report was false
             status.isFrozen = false;
             status.executed = false;
             
             // Return bond to challenger
             payable(status.challenger).transfer(status.challengeBond);
         } else {
-            // Challenge failed — death confirmed
+            // Challenge failed: death confirmed
             // Bond goes to beneficiaries as compensation for delay
             _distributeChallengeBond(deceased, status.challengeBond);
         }
