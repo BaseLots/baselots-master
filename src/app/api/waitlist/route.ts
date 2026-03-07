@@ -15,18 +15,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
     }
 
+    console.log('Connecting to MongoDB...');
+    console.log('MONGODB_URI exists?', !!process.env.MONGODB_URI);
+    
     const client = await clientPromise;
+    console.log('MongoDB connected successfully');
+    
     const db = client.db('baselots');
+    console.log('Database selected: baselots');
 
     const existing = await db.collection('waitlist').findOne({ email: email.toLowerCase() });
+    console.log('Existing check:', existing ? 'found' : 'not found');
+    
     if (existing) {
       return NextResponse.json({ message: 'Already on the waitlist!' }, { status: 200 });
     }
 
-    await db.collection('waitlist').insertOne({
+    console.log('Inserting new email...');
+    const result = await db.collection('waitlist').insertOne({
       email: email.toLowerCase(),
       createdAt: new Date(),
     });
+    console.log('Insert result:', result.acknowledged, result.insertedId);
 
     // Send welcome email via Resend
     // NOTE: Replace PLACEHOLDER_API_KEY with real RESEND_API_KEY from .env.local for actual sending
@@ -54,9 +64,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, message: 'Added to waitlist and welcome email sent!' });
   } catch (error) {
     console.error('Waitlist error:', error);
-    if (error instanceof Error && error.message.includes('Invalid API key')) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Error details:', errorMessage);
+    
+    if (errorMessage.includes('Invalid API key')) {
       return NextResponse.json({ error: 'Email send failed: Invalid API key (using placeholder). Mongo save succeeded.' }, { status: 200 });
     }
-    return NextResponse.json({ error: 'Failed to add to waitlist' }, { status: 500 });
+    if (errorMessage.includes('MongoDB') || errorMessage.includes('MONGODB_URI')) {
+      return NextResponse.json({ error: `MongoDB connection failed: ${errorMessage}` }, { status: 500 });
+    }
+    return NextResponse.json({ error: `Failed to add to waitlist: ${errorMessage}` }, { status: 500 });
   }
 }

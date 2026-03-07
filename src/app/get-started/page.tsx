@@ -148,9 +148,9 @@ export default function GetStartedPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="flex-1 h-14 text-lg font-semibold text-white placeholder:text-white/80 bg-white/10 backdrop-blur-md border-2 border-white/30 rounded-xl focus:bg-white/20 focus:border-[#00D4FF] focus:ring-2 focus:ring-[#00D4FF]/30 transition-all duration-300"
+                  className="flex-1 h-14 text-lg font-semibold text-white placeholder:text-white/60 bg-white/25 backdrop-blur-xl border-2 border-white/40 rounded-xl focus:bg-white/35 focus:border-[#00D4FF] focus:ring-2 focus:ring-[#00D4FF]/50 transition-all duration-300"
                   style={{
-                    boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.15), 0 4px 24px rgba(0,0,0,0.4)'
+                    boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.2), 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1)'
                   }}
                 />
                 <Button
