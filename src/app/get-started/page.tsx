@@ -196,12 +196,14 @@ export default function GetStartedPage() {
         <section className="py-20 border-t border-white/10">
           <div className="max-w-3xl mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-400 via-white to-orange-400 bg-clip-text text-transparent">
-                Frequently Asked Questions
-              </h2>
-              <p className="text-white/60">
-                Everything you need to know about BaseLots
-              </p>
+              <div className="inline-block backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl px-8 py-6">
+                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2">
+                  Frequently Asked Questions
+                </h2>
+                <p className="text-white/60">
+                  Everything you need to know about BaseLots
+                </p>
+              </div>
             </div>
 
             <div className="space-y-4">
