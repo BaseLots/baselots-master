@@ -51,7 +51,7 @@ export default function AdminPage() {
           />
           <button
             onClick={fetchAdminData}
-            className="w-full h-14 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all"
+            className="w-full h-14 bg-gradient-to-r from-cyan-500 to-orange-500 text-white rounded-xl font-bold hover:opacity-90 transition-all"
           >
             {loading ? <Loader2 className="animate-spin mx-auto" /> : "Access Dashboard"}
           </button>
@@ -64,7 +64,7 @@ export default function AdminPage() {
     <div className="min-h-screen bg-black text-white p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-12">
-          <h1 className="text-4xl font-bold">Lead <span className="text-secondary">Management</span></h1>
+          <h1 className="text-4xl font-bold">Lead <span className="text-orange-400">Management</span></h1>
           <button onClick={() => window.location.reload()} className="text-white/40 hover:text-white">Logout</button>
         </div>
 
@@ -74,21 +74,21 @@ export default function AdminPage() {
               <Users size={20} />
               <span className="text-sm font-bold uppercase tracking-widest">Total Leads</span>
             </div>
-            <p className="text-5xl font-bold text-secondary">{data.stats.totalLeads}</p>
+            <p className="text-5xl font-bold text-cyan-400">{data.stats.totalLeads}</p>
           </div>
           <div className="bg-white/5 border border-white/10 p-8 rounded-3xl">
             <div className="flex items-center gap-4 mb-2 text-white/40">
               <DollarSign size={20} />
               <span className="text-sm font-bold uppercase tracking-widest">Total Pledged</span>
             </div>
-            <p className="text-5xl font-bold text-primary">${data.stats.totalInvested.toLocaleString()}</p>
+            <p className="text-5xl font-bold text-orange-400">${data.stats.totalInvested.toLocaleString()}</p>
           </div>
         </div>
 
         <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
           <div className="p-6 border-b border-white/10 flex justify-between items-center">
             <h2 className="text-xl font-bold">Waitlist Signups</h2>
-            <button className="text-xs font-bold uppercase tracking-widest text-secondary hover:text-white flex items-center gap-2">
+            <button className="text-xs font-bold uppercase tracking-widest text-cyan-400 hover:text-white flex items-center gap-2">
               <Download size={14} /> Export CSV
             </button>
           </div>
