@@ -52,8 +52,14 @@ const faqs = [
   {
     question: 'Is my investment secure?',
     answer:
-      'Yes. Each property is held in a legally compliant entity, and your ownership is represented by regulated security tokens on an L2 blockchain. We work with licensed securities attorneys and use industry-standard custody solutions.',
+      'Yes. Your ownership is recorded digitally and protected by the same technology banks use. Each property is held in a legally registered company, and we work with securities attorneys to ensure everything follows federal regulations. Your shares are as real and protected as owning stock in a company.',
     icon: CheckCircle2,
+  },
+  {
+    question: 'Can I use my ownership to get a loan?',
+    answer:
+      'Yes. Because you own real pieces of these properties, that ownership counts as an asset. You can use the value of your BLOCKS as collateral when applying for loans or financing, just like traditional property ownership. It gives you a stronger financial position and access to better rates than you would get with just a savings account.',
+    icon: Shield,
   },
 ];
 
