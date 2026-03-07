@@ -3,36 +3,37 @@ import { MongoClient } from 'mongodb';
 const uri = process.env.MONGODB_URI;
 const options = {};
 
-let clientPromise: Promise<MongoClient> | undefined;
+let cachedClientPromise: Promise<MongoClient> | undefined;
 
-function getClientPromise(): Promise<MongoClient> {
-  if (!uri) {
-    throw new Error('Please add your Mongo URI to .env.local');
-  }
-  
-  if (!clientPromise) {
-    if (process.env.NODE_ENV === 'development') {
-      // In development mode, use a global variable so that the value
-      // is preserved across module reloads caused by HMR (Hot Module Replacement).
-      const globalWithMongo = global as typeof globalThis & {
-        _mongoClientPromise?: Promise<MongoClient>;
-      };
-
-      if (!globalWithMongo._mongoClientPromise) {
-        const client = new MongoClient(uri, options);
-        globalWithMongo._mongoClientPromise = client.connect();
-      }
-      clientPromise = globalWithMongo._mongoClientPromise;
-    } else {
-      // In production mode, it's best to not use a global variable.
-      const client = new MongoClient(uri, options);
-      clientPromise = client.connect();
+// Create a lazy promise that only connects when awaited
+const clientPromise = new Promise<MongoClient>((resolve, reject) => {
+  // Defer the actual connection until microtask/next tick
+  Promise.resolve().then(() => {
+    if (!uri) {
+      reject(new Error('Please add your Mongo URI to .env.local'));
+      return;
     }
-  }
-  
-  return clientPromise;
-}
+    
+    if (!cachedClientPromise) {
+      if (process.env.NODE_ENV === 'development') {
+        const globalWithMongo = global as typeof globalThis & {
+          _mongoClientPromise?: Promise<MongoClient>;
+        };
+        if (!globalWithMongo._mongoClientPromise) {
+          const client = new MongoClient(uri, options);
+          globalWithMongo._mongoClientPromise = client.connect();
+        }
+        cachedClientPromise = globalWithMongo._mongoClientPromise;
+      } else {
+        const client = new MongoClient(uri, options);
+        cachedClientPromise = client.connect();
+      }
+    }
+    
+    cachedClientPromise.then(resolve).catch(reject);
+  });
+});
 
 // Export a module-scoped MongoClient promise. By doing this in a
 // separate module, the client can be shared across functions.
-export default getClientPromise();
+export default clientPromise;
