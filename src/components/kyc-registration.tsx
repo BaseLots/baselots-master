@@ -397,7 +397,7 @@ export function KYCRegistration() {
                 className="bg-gray-800 border-gray-700 text-white"
               />
               {nameError && <p className="text-red-400 text-sm mt-1">{nameError}</p>}
-              {!nameError && formData.fullName.trim().length > 0 && validateName(formData.fullName) && (
+              {!nameError && formData.fullName.trim().length > 0 && nameValid && (
                 <p className="text-green-400 text-sm mt-1">✓ Name looks good</p>
               )}
             </div>
@@ -415,7 +415,7 @@ export function KYCRegistration() {
                 className="bg-gray-800 border-gray-700 text-white font-mono"
               />
               {ssnError && <p className="text-red-400 text-sm mt-1">{ssnError}</p>}
-              {!ssnError && formData.ssn.replace(/\D/g, '').length === 9 && (
+              {!ssnError && ssnValid && (
                 <p className="text-green-400 text-sm mt-1">✓ SSN format valid</p>
               )}
             </div>
