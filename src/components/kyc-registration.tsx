@@ -216,7 +216,7 @@ export function KYCRegistration() {
               </svg>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-green-400">KYC Verified</h2>
+              <h2 className="text-xl font-bold text-green-400">Identity Verified</h2>
               <p className="text-green-300/70 text-sm">You can now invest in BaseLots properties</p>
             </div>
           </div>
@@ -294,7 +294,7 @@ export function KYCRegistration() {
         </div>
         <h2 className="text-2xl font-bold text-white mb-2">Verification Pending</h2>
         <p className="text-gray-400 mb-6">
-          Your KYC application is being reviewed. This usually takes 1-2 business days.
+          Your application is being reviewed. This usually takes 1-2 business days.
         </p>
         <div className="bg-gray-900 rounded-xl p-6 border border-gray-800 mb-6">
           <p className="text-sm text-gray-400 mb-2">Demo Mode: Auto-approving in 10 seconds...</p>
@@ -472,7 +472,7 @@ export function KYCRegistration() {
               disabled={!isFormValid}
               className="w-full bg-gradient-to-r from-cyan-500 to-orange-500 text-white py-6 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Submit KYC Application
+              Submit Verification
             </Button>
             <Button
               onClick={() => setStep('intro')}
@@ -484,7 +484,7 @@ export function KYCRegistration() {
           </div>
 
           <p className="text-xs text-gray-500 text-center mt-4">
-            Your information is encrypted and stored securely. We comply with all SEC KYC/AML requirements.
+            Your information is encrypted and stored securely. We comply with all federal investment regulations.
           </p>
         </div>
       </div>

@@ -21,11 +21,11 @@ export default function KYCPage() {
       <div className="pt-12 pb-8">
         <div className="text-center mb-8">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
-            <span className="text-cyan-400">KYC</span>{' '}
-            <span className="text-white">Verification</span>
+            <span className="text-cyan-400">Verify Your</span>{' '}
+            <span className="text-white">Identity</span>
           </h1>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Complete identity verification to invest in BaseLots properties
+            Quick verification to start investing in real estate
           </p>
         </div>
         <KYCRegistration />
