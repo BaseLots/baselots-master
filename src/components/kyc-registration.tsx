@@ -1,5 +1,3 @@
-import { useAccount, useConnect } from 'wagmi';
-import { injected } from 'wagmi/connectors';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +11,7 @@ import {
 
 interface KYCData {
   status: 'unverified' | 'pending' | 'verified' | 'rejected';
+  email: string;
   fullName: string;
   country: string;
   isAccredited: boolean;
@@ -22,11 +21,10 @@ interface KYCData {
 }
 
 export function KYCRegistration() {
-  const { address, isConnected } = useAccount();
-  const { connect } = useConnect();
   const [kycData, setKycData] = useState<KYCData | null>(null);
   const [step, setStep] = useState<'intro' | 'form' | 'submitting' | 'complete'>('intro');
   const [formData, setFormData] = useState({
+    email: '',
     fullName: '',
     ssn: '',
     country: 'US',
@@ -34,6 +32,28 @@ export function KYCRegistration() {
   });
   const [ssnError, setSsnError] = useState('');
   const [nameError, setNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  // Validate email
+  const validateEmail = (value: string) => {
+    if (value.length === 0) {
+      setEmailError('');
+      return false;
+    }
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(value)) {
+      setEmailError('Please enter a valid email address');
+      return false;
+    }
+    setEmailError('');
+    return true;
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFormData({...formData, email: value});
+    validateEmail(value);
+  };
 
   // Validate full name (at least first and last name)
   const validateName = (value: string) => {
@@ -100,18 +120,16 @@ export function KYCRegistration() {
       return false;
     }
     if (digits.length === 9) {
-      // Basic SSN validation - first 3 digits can't be 000, 666, or 900-999
+      // Basic SSN validation
       const firstThree = digits.slice(0, 3);
       if (firstThree === '000' || firstThree === '666' || (parseInt(firstThree) >= 900)) {
         setSsnError('Invalid SSN format');
         return false;
       }
-      // Middle 2 digits can't be 00
       if (digits.slice(3, 5) === '00') {
         setSsnError('Invalid SSN format');
         return false;
       }
-      // Last 4 digits can't be 0000
       if (digits.slice(5) === '0000') {
         setSsnError('Invalid SSN format');
         return false;
@@ -131,18 +149,17 @@ export function KYCRegistration() {
 
   // Load KYC data from localStorage on mount
   useEffect(() => {
-    if (address) {
-      const saved = localStorage.getItem(`kyc-${address}`);
+    if (formData.email) {
+      const saved = localStorage.getItem(`kyc-${formData.email}`);
       if (saved) {
-        // Use setTimeout to avoid synchronous setState in effect
         setTimeout(() => setKycData(JSON.parse(saved)), 0);
       }
     }
-  }, [address]);
+  }, [formData.email]);
 
   // Simulate admin approval after 10 seconds in demo mode
   useEffect(() => {
-    if (kycData?.status === 'pending' && address) {
+    if (kycData?.status === 'pending' && formData.email) {
       const timer = setTimeout(() => {
         const verified: KYCData = {
           ...kycData,
@@ -150,29 +167,29 @@ export function KYCRegistration() {
           verifiedAt: new Date().toISOString(),
           identityHash: '0x' + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
         };
-        localStorage.setItem(`kyc-${address}`, JSON.stringify(verified));
-        // State update is wrapped in setTimeout, clear timer handles cleanup
+        localStorage.setItem(`kyc-${formData.email}`, JSON.stringify(verified));
         setKycData(verified);
       }, 10000);
 
       return () => clearTimeout(timer);
     }
-  }, [kycData?.status, address]);
+  }, [kycData?.status, formData.email]);
 
   const handleSubmit = () => {
     setStep('submitting');
     
     setTimeout(() => {
-      if (address) {
+      if (formData.email) {
         const newKYC: KYCData = {
           status: 'pending',
+          email: formData.email,
           fullName: formData.fullName,
           country: formData.country,
           isAccredited: formData.isAccredited,
           submittedAt: new Date().toISOString(),
           identityHash: '',
         };
-        localStorage.setItem(`kyc-${address}`, JSON.stringify(newKYC));
+        localStorage.setItem(`kyc-${formData.email}`, JSON.stringify(newKYC));
         setKycData(newKYC);
         setStep('complete');
       }
@@ -180,52 +197,12 @@ export function KYCRegistration() {
   };
 
   const resetKYC = () => {
-    if (address) {
-      localStorage.removeItem(`kyc-${address}`);
+    if (formData.email) {
+      localStorage.removeItem(`kyc-${formData.email}`);
       setKycData(null);
       setStep('intro');
     }
   };
-
-  if (!isConnected) {
-    const isMobile = typeof window !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    
-    return (
-      <div className="p-8 text-center max-w-md mx-auto">
-        <div className="w-20 h-20 bg-gradient-to-br from-cyan-500/20 to-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg className="w-10 h-10 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-          </svg>
-        </div>
-        <h2 className="text-2xl font-bold mb-4 text-white">KYC Verification</h2>
-        <p className="text-gray-400 mb-8">Connect your wallet to complete identity verification and start investing in BaseLots properties.</p>
-        
-        <Button 
-          onClick={() => connect({ connector: injected() })}
-          className="w-full bg-gradient-to-r from-cyan-500 to-orange-500 text-white py-6 text-lg font-semibold hover:opacity-90"
-        >
-          {isMobile ? 'Connect MetaMask' : 'Connect Wallet'}
-        </Button>
-        
-        {isMobile && (
-          <div className="mt-6 p-4 bg-gray-800/50 rounded-lg text-left">
-            <p className="text-sm text-gray-400 mb-2"><strong className="text-white">On Mobile?</strong> You need a Web3 wallet:</p>
-            <ul className="text-xs text-gray-500 space-y-1 list-disc list-inside">
-              <li>MetaMask mobile app recommended</li>
-              <li>Use the browser inside MetaMask app</li>
-              <li>Or open this page in your wallet&apos;s dApp browser</li>
-            </ul>
-            <a 
-              href="https://metamask.app.link/dapp/baselots-master.vercel.app/kyc"
-              className="mt-3 inline-block text-sm text-cyan-400 hover:text-cyan-300"
-            >
-              Open in MetaMask →
-            </a>
-          </div>
-        )}
-      </div>
-    );
-  }
 
   // Show verified status
   if (kycData?.status === 'verified') {
@@ -253,6 +230,10 @@ export function KYCRegistration() {
               <span className="text-green-400 font-medium">Verified ✓</span>
             </div>
             <div className="flex justify-between py-2 border-b border-gray-800">
+              <span className="text-gray-400">Email</span>
+              <span className="text-white">{kycData.email}</span>
+            </div>
+            <div className="flex justify-between py-2 border-b border-gray-800">
               <span className="text-gray-400">Name</span>
               <span className="text-white">{kycData.fullName}</span>
             </div>
@@ -278,27 +259,26 @@ export function KYCRegistration() {
             </div>
             <div className="flex justify-between py-2">
               <span className="text-gray-400">Identity Hash</span>
-              <span className="text-gray-500 font-mono text-sm">
-                {kycData.identityHash.slice(0, 16)}...{kycData.identityHash.slice(-8)}
-              </span>
+              <span className="text-white font-mono text-xs">{kycData.identityHash.slice(0, 20)}...</span>
             </div>
           </div>
         </div>
-
-        <div className="mt-6 p-4 bg-amber-900/20 border border-amber-500/30 rounded-lg">
-          <p className="text-amber-200 text-sm">
-            <strong>Demo Mode:</strong> This verification is stored locally in your browser. 
-            In production, this would be recorded on-chain in the IdentityRegistry contract.
-          </p>
+        
+        <div className="mt-6 flex gap-4">
+          <Button 
+            onClick={() => window.location.href = '/dashboard'}
+            className="flex-1 bg-gradient-to-r from-cyan-500 to-orange-500 text-white"
+          >
+            Go to Dashboard
+          </Button>
+          <Button 
+            onClick={resetKYC}
+            variant="outline"
+            className="border-gray-700 text-gray-400 hover:bg-gray-800"
+          >
+            Reset (Demo)
+          </Button>
         </div>
-
-        <Button 
-          onClick={resetKYC}
-          variant="ghost"
-          className="w-full mt-4 text-gray-400 hover:text-white"
-        >
-          Reset Demo (Clear KYC Data)
-        </Button>
       </div>
     );
   }
@@ -306,159 +286,139 @@ export function KYCRegistration() {
   // Show pending status
   if (kycData?.status === 'pending') {
     return (
-      <div className="p-8 max-w-2xl mx-auto">
-        <div className="bg-gray-900 rounded-xl p-8 border border-gray-800 text-center">
-          <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <svg className="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h3 className="text-xl font-semibold text-white mb-2">Verification Pending</h3>
-          <p className="text-gray-400 mb-6">
-            Your KYC application has been submitted and is under review.
-          </p>
-          
-          <div className="bg-gray-800 rounded-lg p-4 text-left mb-6">
-            <p className="text-sm text-gray-400 mb-2">Application Details:</p>
-            <p className="text-white font-mono text-sm">Wallet: {address?.slice(0, 6)}...{address?.slice(-4)}</p>
-            <p className="text-white text-sm">Name: {kycData.fullName}</p>
-            <p className="text-white text-sm">Submitted: {new Date(kycData.submittedAt).toLocaleString()}</p>
-          </div>
-
-          <div className="flex items-center justify-center gap-2 text-amber-400">
-            <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
-            <span className="text-sm">Auto-approving in demo mode (10s)...</span>
+      <div className="p-8 max-w-2xl mx-auto text-center">
+        <div className="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg className="w-10 h-10 text-yellow-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold text-white mb-2">Verification Pending</h2>
+        <p className="text-gray-400 mb-6">
+          Your KYC application is being reviewed. This usually takes 1-2 business days.
+        </p>
+        <div className="bg-gray-900 rounded-xl p-6 border border-gray-800 mb-6">
+          <p className="text-sm text-gray-400 mb-2">Demo Mode: Auto-approving in 10 seconds...</p>
+          <div className="w-full bg-gray-800 rounded-full h-2">
+            <div className="bg-gradient-to-r from-cyan-500 to-orange-500 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
           </div>
         </div>
-
         <Button 
           onClick={resetKYC}
-          variant="ghost"
-          className="w-full mt-4 text-gray-400 hover:text-white"
+          variant="outline"
+          className="border-gray-700 text-gray-400"
         >
-          Cancel Application
+          Cancel & Start Over
         </Button>
       </div>
     );
   }
 
-  return (
-    <div className="p-8 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold text-white mb-6">KYC Registration</h2>
-
-      {step === 'intro' && (
-        <div className="space-y-6">
-          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-            <h3 className="text-lg font-semibold text-white mb-4">Why KYC?</h3>
-            <ul className="space-y-3 text-gray-300">
-              <li className="flex items-start gap-3">
-                <span className="text-cyan-400">•</span>
-                SEC compliance for security token offerings
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-cyan-400">•</span>
-                Anti-money laundering (AML) requirements
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-cyan-400">•</span>
-                Investor protection and verification
-              </li>
-            </ul>
-          </div>
-
-          <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
-            <h3 className="text-lg font-semibold text-white mb-4">What You&apos;ll Need</h3>
-            <ul className="space-y-3 text-gray-300">
-              <li className="flex items-start gap-3">
-                <span className="text-orange-400">1.</span>
-                Government-issued photo ID
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-orange-400">2.</span>
-                Proof of address (utility bill, bank statement)
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-orange-400">3.</span>
-                Selfie for identity verification
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="text-orange-400">4.</span>
-                SSN or Tax ID (for US residents)
-              </li>
-            </ul>
-          </div>
-
-          <div className="bg-amber-900/20 border border-amber-500/30 rounded-xl p-4">
-            <p className="text-amber-200 text-sm">
-              <strong>Demo Mode:</strong> This simulates the KYC flow. Your data is stored 
-              locally and auto-approved after 10 seconds for demonstration purposes.
-            </p>
-          </div>
-
-          <Button 
-            onClick={() => setStep('form')}
-            className="w-full bg-gradient-to-r from-cyan-500 to-orange-500 text-white py-6 text-lg font-semibold hover:opacity-90"
-          >
-            Start KYC Verification
-          </Button>
+  // Show submission success
+  if (step === 'complete') {
+    return (
+      <div className="p-8 max-w-2xl mx-auto text-center">
+        <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg className="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
         </div>
-      )}
+        <h2 className="text-2xl font-bold text-white mb-2">Application Submitted!</h2>
+        <p className="text-gray-400 mb-8">
+          We&apos;ve received your KYC application. You&apos;ll be notified via email once verification is complete.
+        </p>
+      </div>
+    );
+  }
 
-      {step === 'form' && (
-        <div className="bg-gray-900 rounded-xl p-6 border border-gray-800 space-y-6">
-          <h3 className="text-lg font-semibold text-white">Personal Information</h3>
+  // Show submitting state
+  if (step === 'submitting') {
+    return (
+      <div className="p-8 max-w-2xl mx-auto text-center">
+        <div className="w-20 h-20 bg-cyan-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg className="w-10 h-10 text-cyan-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold text-white mb-2">Submitting...</h2>
+        <p className="text-gray-400">Please wait while we process your information</p>
+      </div>
+    );
+  }
+
+  // Show KYC form
+  if (step === 'form') {
+    const isFormValid = 
+      validateEmail(formData.email) &&
+      validateName(formData.fullName) &&
+      validateSSN(formData.ssn);
+
+    return (
+      <div className="p-8 max-w-2xl mx-auto">
+        <div className="bg-gray-900 rounded-xl p-6 border border-gray-800">
+          <h2 className="text-2xl font-bold text-white mb-6">Identity Verification</h2>
           
           <div className="space-y-4">
+            {/* Email */}
             <div>
-              <label className="block text-gray-400 text-sm mb-2">Full Legal Name</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2">
+                Email Address *
+              </label>
               <Input
+                type="email"
+                value={formData.email}
+                onChange={handleEmailChange}
+                placeholder="your@email.com"
+                className="bg-gray-800 border-gray-700 text-white"
+              />
+              {emailError && <p className="text-red-400 text-sm mt-1">{emailError}</p>}
+            </div>
+
+            {/* Full Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">
+                Full Legal Name *
+              </label>
+              <Input
+                type="text"
                 value={formData.fullName}
                 onChange={handleNameChange}
-                placeholder="John Doe"
-                className={`bg-gray-800 text-white h-12 ${
-                  nameError ? 'border-red-500 focus:border-red-500' : 
-                  formData.fullName.trim().split(/\s+/).filter(w => w.length > 0).length >= 2 ? 'border-green-500 focus:border-green-500' : 
-                  'border-gray-700'
-                }`}
+                placeholder="John Smith"
+                className="bg-gray-800 border-gray-700 text-white"
               />
-              {nameError ? (
-                <p className="text-red-400 text-xs mt-1">{nameError}</p>
-              ) : formData.fullName.trim().split(/\s+/).filter(w => w.length > 0).length >= 2 ? (
-                <p className="text-green-400 text-xs mt-1">✓ Valid name</p>
-              ) : (
-                <p className="text-gray-500 text-xs mt-1">Enter first and last name</p>
+              {nameError && <p className="text-red-400 text-sm mt-1">{nameError}</p>}
+              {!nameError && formData.fullName.trim().length > 0 && (
+                <p className="text-green-400 text-sm mt-1">✓ Name looks good</p>
               )}
             </div>
 
+            {/* SSN */}
             <div>
-              <label className="block text-gray-400 text-sm mb-2">SSN / Tax ID</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2">
+                Social Security Number (US) *
+              </label>
               <Input
+                type="text"
                 value={formData.ssn}
                 onChange={handleSSNChange}
                 placeholder="XXX-XX-XXXX"
                 maxLength={11}
-                inputMode="numeric"
-                className={`bg-gray-800 text-white h-12 ${
-                  ssnError ? 'border-red-500 focus:border-red-500' : 
-                  formData.ssn.length === 11 ? 'border-green-500 focus:border-green-500' : 
-                  'border-gray-700'
-                }`}
+                className="bg-gray-800 border-gray-700 text-white font-mono"
               />
-              {ssnError ? (
-                <p className="text-red-400 text-xs mt-1">{ssnError}</p>
-              ) : formData.ssn.length === 11 ? (
-                <p className="text-green-400 text-xs mt-1">✓ Valid SSN format</p>
-              ) : (
-                <p className="text-gray-500 text-xs mt-1">9 digits required (XXX-XX-XXXX)</p>
+              {ssnError && <p className="text-red-400 text-sm mt-1">{ssnError}</p>}
+              {!ssnError && formData.ssn.replace(/\D/g, '').length === 9 && (
+                <p className="text-green-400 text-sm mt-1">✓ SSN format valid</p>
               )}
             </div>
 
+            {/* Country */}
             <div>
-              <label className="block text-gray-400 text-sm mb-2">Country</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2">
+                Country of Residence
+              </label>
               <select
                 value={formData.country}
                 onChange={(e) => setFormData({...formData, country: e.target.value})}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white h-12"
+                className="w-full bg-gray-800 border border-gray-700 text-white rounded-md px-3 py-2"
               >
                 <option value="US">United States</option>
                 <option value="CA">Canada</option>
@@ -467,61 +427,37 @@ export function KYCRegistration() {
               </select>
             </div>
 
-            <div className="flex items-center gap-3 pt-2">
+            {/* Accredited Investor */}
+            <div className="flex items-center gap-3 p-4 bg-gray-800/50 rounded-lg">
               <input
                 type="checkbox"
                 id="accredited"
                 checked={formData.isAccredited}
                 onChange={(e) => setFormData({...formData, isAccredited: e.target.checked})}
-                className="w-5 h-5 rounded border-gray-600 bg-gray-800"
+                className="w-5 h-5 rounded border-gray-600 bg-gray-700 text-cyan-500 focus:ring-cyan-500"
               />
-              <label htmlFor="accredited" className="text-gray-300 text-sm flex items-center gap-1">
-                I qualify as an
+              <label htmlFor="accredited" className="text-sm text-gray-300 flex-1">
+                I am an accredited investor
                 <Dialog>
                   <DialogTrigger asChild>
-                    <button type="button" className="text-cyan-400 underline hover:text-cyan-300 cursor-pointer bg-transparent border-none p-0">
-                      Accredited Investor
+                    <button className="text-cyan-400 hover:text-cyan-300 ml-2">
+                      (What&apos;s this?)
                     </button>
                   </DialogTrigger>
-                  <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-lg">
+                  <DialogContent className="bg-gray-900 border-gray-800">
                     <DialogHeader>
-                      <DialogTitle className="text-xl font-bold text-cyan-400">What is an Accredited Investor?</DialogTitle>
+                      <DialogTitle className="text-white">Accredited Investor Status</DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-4 text-gray-300">
-                      <p>
-                        An <strong className="text-white">Accredited Investor</strong> is someone who meets specific financial criteria set by the SEC, allowing them to invest in certain private securities and alternative investments.
-                      </p>
-                      
-                      <div>
-                        <h4 className="font-semibold text-white mb-2">You qualify if you meet ANY of these:</h4>
-                        <ul className="space-y-2 text-sm">
-                          <li className="flex items-start gap-2">
-                            <span className="text-cyan-400 mt-0.5">•</span>
-                            <span>Annual income of <strong className="text-white">$200,000+</strong> (individual) or <strong className="text-white">$300,000+</strong> (joint with spouse) for the past 2 years</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-cyan-400 mt-0.5">•</span>
-                            <span>Net worth over <strong className="text-white">$1,000,000</strong> (excluding primary residence)</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-cyan-400 mt-0.5">•</span>
-                            <span>Hold a Series 7, 65, or 82 license in good standing</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-cyan-400 mt-0.5">•</span>
-                            <span>Entity with assets over <strong className="text-white">$5,000,000</strong></span>
-                          </li>
-                        </ul>
-                      </div>
-
-                      <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-3">
-                        <p className="text-amber-200 text-sm">
-                          <strong>Note:</strong> BaseLots requires accredited investor status for certain higher-tier investments and removes investment limits for Reg CF offerings.
-                        </p>
-                      </div>
-
-                      <p className="text-xs text-gray-500">
-                        Source: SEC Rule 501 of Regulation D
+                    <div className="space-y-3 text-sm text-gray-300">
+                      <p>Under SEC rules, an accredited investor is someone who meets ONE of these criteria:</p>
+                      <ul className="list-disc list-inside space-y-2 text-gray-400">
+                        <li>Annual income exceeding $200,000 (or $300,000 joint) for the last 2 years</li>
+                        <li>Net worth over $1 million (excluding primary residence)</li>
+                        <li>Professional certifications (Series 7, 65, 82)</li>
+                        <li>Director, executive officer, or general partner of the issuer</li>
+                      </ul>
+                      <p className="text-cyan-400 text-xs mt-3">
+                        Note: Non-accredited investors can still invest, but with lower maximum amounts under Reg CF.
                       </p>
                     </div>
                   </DialogContent>
@@ -530,32 +466,60 @@ export function KYCRegistration() {
             </div>
           </div>
 
-          <div className="pt-4 space-y-3">
-            <Button 
+          <div className="mt-8 space-y-3">
+            <Button
               onClick={handleSubmit}
-              disabled={nameError !== '' || formData.fullName.trim().split(/\s+/).filter(w => w.length > 0).length < 2 || formData.ssn.length < 11 || ssnError !== ''}
-              className="w-full bg-gradient-to-r from-cyan-500 to-orange-500 text-white py-6 text-lg font-semibold hover:opacity-90 disabled:opacity-50"
+              disabled={!isFormValid}
+              className="w-full bg-gradient-to-r from-cyan-500 to-orange-500 text-white py-6 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Submit for Verification
+              Submit KYC Application
             </Button>
-            <Button 
-              variant="ghost"
+            <Button
               onClick={() => setStep('intro')}
-              className="w-full text-gray-400 hover:text-white"
+              variant="outline"
+              className="w-full border-gray-700 text-gray-400"
             >
               Back
             </Button>
           </div>
-        </div>
-      )}
 
-      {step === 'submitting' && (
-        <div className="text-center py-12">
-          <div className="animate-spin w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-white mb-2">Submitting...</h3>
-          <p className="text-gray-400">Uploading documents to KYC provider</p>
+          <p className="text-xs text-gray-500 text-center mt-4">
+            Your information is encrypted and stored securely. We comply with all SEC KYC/AML requirements.
+          </p>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  // Show intro/landing
+  return (
+    <div className="p-8 text-center max-w-md mx-auto">
+      <div className="w-20 h-20 bg-gradient-to-br from-cyan-500/20 to-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg className="w-10 h-10 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      </div>
+      <h2 className="text-2xl font-bold mb-4 text-white">Get Verified to Invest</h2>
+      <p className="text-gray-400 mb-8">
+        Complete your KYC verification to start investing in fractional real estate. Takes less than 2 minutes.
+      </p>
+      
+      <Button
+        onClick={() => setStep('form')}
+        className="w-full bg-gradient-to-r from-cyan-500 to-orange-500 text-white py-6 text-lg font-semibold hover:opacity-90"
+      >
+        Start Verification
+      </Button>
+
+      <div className="mt-6 p-4 bg-gray-800/50 rounded-lg text-left">
+        <p className="text-sm text-gray-400 mb-2"><strong className="text-white">What you&apos;ll need:</strong></p>
+        <ul className="text-xs text-gray-500 space-y-1 list-disc list-inside">
+          <li>Legal name and SSN</li>
+          <li>Email address</li>
+          <li>Country of residence</li>
+          <li>Accredited investor status (optional)</li>
+        </ul>
+      </div>
     </div>
   );
 }
