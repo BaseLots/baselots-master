@@ -348,10 +348,22 @@ export function KYCRegistration() {
 
   // Show form
   if (step === 'form') {
-    const isFormValid = 
-      validateEmail(formData.email) &&
-      validateName(formData.fullName) &&
-      validateSSN(formData.ssn);
+    // Compute validity without calling validators that set state
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
+    const nameTrimmed = formData.fullName.trim();
+    const nameWords = nameTrimmed.split(/\s+/).filter(w => w.length > 0);
+    const nameValid = nameWords.length >= 2 && 
+                      nameWords.every(w => w.length >= 2) &&
+                      /^[a-zA-Z\s\-\'\.]+$/.test(nameTrimmed);
+    const ssnDigits = formData.ssn.replace(/\D/g, '');
+    const ssnFirstThree = ssnDigits.slice(0, 3);
+    const ssnValid = ssnDigits.length === 9 && 
+                     ssnFirstThree !== '000' && 
+                     ssnFirstThree !== '666' && 
+                     parseInt(ssnFirstThree) < 900 &&
+                     ssnDigits.slice(3, 5) !== '00' &&
+                     ssnDigits.slice(5) !== '0000';
+    const isFormValid = emailValid && nameValid && ssnValid;
 
     return (
       <div className="p-8 max-w-2xl mx-auto">
