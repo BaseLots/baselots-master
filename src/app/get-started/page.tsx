@@ -196,7 +196,7 @@ export default function GetStartedPage() {
         <section className="py-20 border-t border-white/10">
           <div className="max-w-3xl mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              <h2 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-400 via-white to-orange-400 bg-clip-text text-transparent">
                 Frequently Asked Questions
               </h2>
               <p className="text-white/60">
