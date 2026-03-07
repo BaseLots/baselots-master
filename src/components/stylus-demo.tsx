@@ -64,7 +64,7 @@ export function StylusDemo() {
       
       if (!data.data) throw new Error('No data returned')
       
-      // Manual parsing for Stylus tuple encoding
+      // Manual parsing for tuple encoding
       const hex = data.data.slice(2) // Remove 0x prefix
       
       // Helper to read a 32-byte word at a specific byte offset
@@ -136,7 +136,7 @@ export function StylusDemo() {
   if (!mounted) {
     return (
       <div className="p-6 max-w-2xl mx-auto space-y-6">
-        <h2 className="text-2xl font-bold">BaseLots Stylus Demo</h2>
+        <h2 className="text-2xl font-bold">BaseLots Token Demo</h2>
         <div className="p-4 bg-slate-100 rounded-lg text-slate-900">Loading...</div>
       </div>
     )
@@ -144,7 +144,7 @@ export function StylusDemo() {
 
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6">
-      <h2 className="text-2xl font-bold">BaseLots Stylus Demo</h2>
+      <h2 className="text-2xl font-bold">BaseLots Token Demo</h2>
       
       {/* Connection Status */}
       <div className="p-4 bg-slate-100 rounded-lg text-slate-900">
