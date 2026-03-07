@@ -145,12 +145,11 @@ const Dashboard: React.FC = () => {
               {/* Row 2: Secondary nav - hidden on production and baselots.com */}
               {!isProduction && (
                 <div className="flex items-center justify-center gap-2 mt-2">
-                  {/* Verify hidden until feature is ready */}
-                  {/* <Link href="/kyc">
+                  <Link href="/kyc">
                     <Button variant="ghost" className="text-green-400 hover:text-green-300 hover:bg-green-950/30 text-xs px-2 py-1 h-8">
                       Verify
                     </Button>
-                  </Link> */}
+                  </Link>
                   <Link href="/hsp-demo">
                     <Button variant="ghost" className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/30 text-xs px-2 py-1 h-8">
                       HSP Demo
@@ -210,12 +209,11 @@ const Dashboard: React.FC = () => {
               {/* Row 2: Secondary nav centered with more spacing - hidden on production */}
               {!isProduction && (
                 <div className="flex items-center justify-center gap-6 mt-3">
-                  {/* Verify hidden until feature is ready */}
-                  {/* <Link href="/kyc">
+                  <Link href="/kyc">
                     <Button variant="ghost" className="text-green-400 hover:text-green-300 hover:bg-green-950/30 text-sm px-4">
                       Verify
                     </Button>
-                  </Link> */}
+                  </Link>
                   <Link href="/hsp-demo">
                     <Button variant="ghost" className="text-purple-400 hover:text-purple-300 hover:bg-purple-950/30 text-sm px-4">
                       HSP Demo
