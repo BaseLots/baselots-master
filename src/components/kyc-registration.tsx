@@ -501,7 +501,7 @@ export function KYCRegistration() {
       </div>
       <h2 className="text-2xl font-bold mb-4 text-white">Get Verified to Invest</h2>
       <p className="text-gray-400 mb-8">
-        Complete your KYC verification to start investing in fractional real estate. Takes less than 2 minutes.
+        Complete identity verification to start investing in fractional real estate. Takes less than 2 minutes.
       </p>
       
       <Button

@@ -147,7 +147,7 @@ const Dashboard: React.FC = () => {
                 <div className="flex items-center justify-center gap-2 mt-2">
                   <Link href="/kyc">
                     <Button variant="ghost" className="text-green-400 hover:text-green-300 hover:bg-green-950/30 text-xs px-2 py-1 h-8">
-                      KYC
+                      Verify
                     </Button>
                   </Link>
                   <Link href="/hsp-demo">
@@ -211,7 +211,7 @@ const Dashboard: React.FC = () => {
                 <div className="flex items-center justify-center gap-6 mt-3">
                   <Link href="/kyc">
                     <Button variant="ghost" className="text-green-400 hover:text-green-300 hover:bg-green-950/30 text-sm px-4">
-                      KYC
+                      Verify
                     </Button>
                   </Link>
                   <Link href="/hsp-demo">
