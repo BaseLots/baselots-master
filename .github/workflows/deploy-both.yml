@@ -1,11 +1,11 @@
-name: Deploy to VPS (baselots.com)
+name: Deploy to Both (VPS + Vercel)
 
 on:
   workflow_dispatch:  # Manual trigger only
 
 jobs:
-  deploy:
-    name: Deploy to Production VPS
+  deploy-vps:
+    name: Deploy to baselots.com
     runs-on: ubuntu-latest
     
     steps:
@@ -25,4 +25,14 @@ jobs:
             npm install
             npm run build
             pm2 restart baselots-dynamic
-            echo "✅ Deployment complete!"
+            echo "✅ VPS deployment complete!"
+
+  trigger-vercel:
+    name: Trigger Vercel deployment
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Trigger Vercel Deploy
+        run: |
+          echo "✅ Vercel auto-deploys on git push"
+          echo "Push to main branch triggers Vercel automatically"
